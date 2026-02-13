@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 public class ConnectUIScript : MonoBehaviour
 {
+
+    public Canvas canvas;
     public Button hostButton;
     public Button clientButton;
 
@@ -17,11 +19,13 @@ public class ConnectUIScript : MonoBehaviour
     private void startHost()
     {
         NetworkManager.Singleton.StartHost();
+        canvas.enabled = false;
     }
 
     private void startClient()
     {
         NetworkManager.Singleton.StartClient();
+        canvas.enabled = false;
     }
 
 }

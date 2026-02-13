@@ -64,6 +64,7 @@
     <Compile Include="Assets\TutorialInfo\Scripts\Editor\ReadmeEditor.cs" />
     <Compile Include="Assets\Editor\ActionStackEditor.cs" />
     <Compile Include="Assets\Editor\PlayerEditor.cs" />
+    <Compile Include="Assets\Editor\BezierCurveEditor.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

@@ -1,15 +1,16 @@
+using Bezier;
 using TMPro;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
+using UnityEngine.U2D;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 public class Player : ActionStack
 {
-
     private float m_maxHealth = 100;
 
     public NetworkVariable<float> m_health = new NetworkVariable<float>(100f);
@@ -21,6 +22,8 @@ public class Player : ActionStack
     Rigidbody rb;
 
     private GameObject bomb;
+    private GameObject bomba;
+
     public float projectileSpeed = 2000f;
 
     float horizontalInput;
@@ -37,9 +40,14 @@ public class Player : ActionStack
     private float dashResetTime;
     private TextMeshProUGUI dashText;
 
+    public UnityEngine.UI.Slider shootSlider;
+    public UnityEngine.UI.Slider bombaSlider;
+
     public float moveSpeed = 5.0f;
     public float airMoveSpeed = 15.0f;
     public float jumpHeight = 4.0f;
+
+    public float shootCooldown = 0;
 
     public LayerMask whatIsGround;
 
@@ -71,8 +79,10 @@ public class Player : ActionStack
         GameManager.Instance.addPlayer(this);
         dashText = GetComponentInChildren<TextMeshProUGUI>(true);
         bomb = Resources.Load<GameObject>("Prefabs/Bomberbomb");
+        bomba = Resources.Load<GameObject>("Prefabs/Bomba");
         healthbarUI.fillAmount = 1;
         healthbarWorld.fillAmount = 1;
+        shootCooldown = 0;
 
         if (IsOwner)
         {
@@ -112,6 +122,17 @@ public class Player : ActionStack
         
     }
 
+    [ServerRpc]
+    public void spawnBombaServerRpc(Vector3 Player, Vector3 Target)
+    {
+        GameObject spawnedBomba = Instantiate(bomba, Player, Quaternion.identity);
+        BezierCurve.ControlPoint playerControlPoint = new BezierCurve.ControlPoint() { m_vPosition = Player, m_vTangent = Vector3.up * 10 };
+        BezierCurve.ControlPoint targetControlPoint = new BezierCurve.ControlPoint() { m_vPosition = Target, m_vTangent = Vector3.down * 10 };
+        spawnedBomba.GetComponent<BezierCurve>().m_points.Add(playerControlPoint);
+        spawnedBomba.GetComponent<BezierCurve>().m_points.Add(targetControlPoint);
+        spawnedBomba.GetComponent<NetworkObject>().Spawn();
+    }
+
     
     public void takeDamage(float dmg)
     {
@@ -136,7 +157,7 @@ public class Player : ActionStack
         m_maxHealth = health;
         m_health.Value = maxHealth;
     }
-    
+
     public void DefaultMovement()
     {
         if(!IsOwner)
@@ -158,6 +179,12 @@ public class Player : ActionStack
             dashes++;
             dashText.text = dashes.ToString();
             dashResetTime = Time.time + dashCooldown;
+        }
+
+        if(Input.GetKeyDown(KeyCode.P))
+        {
+            Debug.Log("player p");
+            GameManager.Instance.pauseServerRpc();
         }
 
         if (Input.GetKeyDown(KeyCode.C))

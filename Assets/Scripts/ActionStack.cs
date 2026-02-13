@@ -63,6 +63,8 @@ public class ActionStack : NetworkBehaviour
                 GameObject go = new GameObject("MainActionStack");
                 DontDestroyOnLoad(go);
                 sm_main = go.AddComponent<ActionStack>();
+                NetworkObject networkObject = go.AddComponent<NetworkObject>();
+                networkObject.Spawn();
             }
 
             return sm_main;
