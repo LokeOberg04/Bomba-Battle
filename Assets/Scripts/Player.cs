@@ -1,9 +1,10 @@
+using System;
+using System.Collections.Generic;
 using Bezier;
 using TMPro;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEditor;
-using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.UI;
@@ -38,7 +39,11 @@ public class Player : ActionStack
     private float dashes = 2;
     public float dashCooldown = 2.5f;
     private float dashResetTime;
-    private TextMeshProUGUI dashText;
+    public TextMeshProUGUI dashText;
+
+    public TextMeshProUGUI scoreText;
+
+    public Transform spawnPoint;
 
     public UnityEngine.UI.Slider shootSlider;
     public UnityEngine.UI.Slider bombaSlider;
@@ -77,7 +82,7 @@ public class Player : ActionStack
         scale = transform.localScale;
         PushAction(new Bomber(this));
         GameManager.Instance.addPlayer(this);
-        dashText = GetComponentInChildren<TextMeshProUGUI>(true);
+        //dashText = GetComponentInChildren<TextMeshProUGUI>(true);
         bomb = Resources.Load<GameObject>("Prefabs/Bomberbomb");
         bomba = Resources.Load<GameObject>("Prefabs/Bomba");
         healthbarUI.fillAmount = 1;
@@ -97,11 +102,18 @@ public class Player : ActionStack
     private void OnEnable()
     {
         m_health.OnValueChanged += onHealthChanged;
+        GameManager.Instance.score.OnListChanged += updateScore;
     }
 
     private void OnDisable()
     {
         m_health.OnValueChanged -= onHealthChanged;
+        GameManager.Instance.score.OnListChanged -= updateScore;
+    }
+
+    public void updateScore(NetworkListEvent<int> changeEvent)
+    {
+        scoreText.text = GameManager.Instance.score[0].ToString() + "-" + GameManager.Instance.score[1].ToString();
     }
 
     [ServerRpc]
@@ -112,12 +124,6 @@ public class Player : ActionStack
         spawnedBomb.GetComponent<Bomberbomb>().shooterId = shooterId;
         Rigidbody bombRb = spawnedBomb.GetComponent<Rigidbody>();
         bombRb.AddForce(spawnedBomb.transform.forward * projectileSpeed);
-
-        ulong myClientId = NetworkManager.Singleton.LocalClientId;
-
-        ulong ownerId = OwnerClientId;
-
-        //spawnedBomb.GetComponent<NetworkObject>().ChangeOwnership(client ? myClientId : ownerId);
         spawnedBomb.GetComponent<NetworkObject>().Spawn();
         
     }
@@ -150,6 +156,30 @@ public class Player : ActionStack
         float percentHealth = newValue / maxHealth;
             healthbarUI.fillAmount = percentHealth;
             healthbarWorld.fillAmount = percentHealth;
+        if (newValue < 0)
+        {
+            die();
+        }
+    }
+
+    public void die()
+    {
+        ulong playerId = GetComponent<NetworkObject>().OwnerClientId;
+
+        GameManager.Instance.updateScore(playerId);
+
+        respawnClientRpc();
+    }
+
+    [ClientRpc]
+    public void respawnClientRpc()
+    {
+        spawnPoint = GameManager.Instance.getSpawnPoint();
+
+        transform.position = spawnPoint.position;
+        transform.rotation = spawnPoint.rotation;
+
+        m_health.Value = m_maxHealth;
     }
 
     public void setMaxHealth(float health)

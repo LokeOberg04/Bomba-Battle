@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -9,7 +10,14 @@ public class GameManager : NetworkBehaviour
 
     private HashSet<Player> m_players = new HashSet<Player>();
 
+    public NetworkList<int> score;
+
     public HashSet<Player> players => m_players;
+
+    [SerializeField]
+    private Transform[] m_spawnPoints;
+
+    public Transform[] spawnPoints => m_spawnPoints;
 
     public static GameManager Instance { get; private set; }
 
@@ -21,6 +29,18 @@ public class GameManager : NetworkBehaviour
     private void OnDisable()
     {
         isPaused.OnValueChanged -= onPausedChanged;
+    }
+
+    public void updateScore(ulong playerId)
+    {
+        if (GetComponent<NetworkObject>().OwnerClientId == playerId)
+        {
+            score[0]++;
+        }
+        else
+        {
+            score[1]++;
+        }
     }
 
     public void onPausedChanged(bool oldValue, bool newValue)
@@ -50,6 +70,32 @@ public class GameManager : NetworkBehaviour
         isPaused.Value = !isPaused.Value;
     }
 
+    public Transform getSpawnPoint()
+    {
+        Vector3 killer = Vector3.zero;
+        foreach(Player player in players)
+        {
+            if(player.health.Value > 0)
+            {
+                killer = player.transform.position;
+            }
+        }
+
+        return spawnPoints.OrderBy(p => Vector3.Distance(p.position, killer)).ToList().Last();
+
+    }
+
+    public void respawnPlayers()
+    {
+        foreach (Player player in players)
+        {
+            if (player.health.Value < 1)
+            {
+                player.respawnClientRpc();
+            }
+        }
+    }
+
     private void Awake()
     {
         // If there is an instance, and it's not me, delete myself.
@@ -63,6 +109,9 @@ public class GameManager : NetworkBehaviour
             Instance = this;
         }
 
+        score = new NetworkList<int>();
+        score.Add(0);
+        score.Add(0);
 
     }
 
