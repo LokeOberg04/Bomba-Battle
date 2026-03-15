@@ -150,12 +150,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  owner: {fileID: 0}
+  shooterId: 0
   directDamage: 20
   knockback: 5
   damage: 50
   range: 5
   lifeTime: 5
+  whatIsMapGeometry:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!54 &7511410759723468988
 Rigidbody:
   m_ObjectHideFlags: 0

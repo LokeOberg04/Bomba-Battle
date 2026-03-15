@@ -11,11 +11,18 @@ public class Bomba : MonoBehaviour
     public float explosionTime = 1;
     private float distance = 0;
     private BezierCurve bc;
+    private GameObject bombaEnd;
+    private GameObject spawnedBomba;
+    public LayerMask whatIsMapGeometry;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         bc = GetComponent<BezierCurve>();
+        bombaEnd = Resources.Load<GameObject>("Prefabs/BombaEnd");
+        spawnedBomba = Instantiate(bombaEnd, BezierCurve.GetPosition(bc.FirstPoint, bc.LastPoint, 0.99f), Quaternion.identity);
+        spawnedBomba.GetComponent<NetworkObject>().Spawn();
     }
 
     // Update is called once per frame
@@ -44,7 +51,11 @@ public class Bomba : MonoBehaviour
         foreach (Player player in GameManager.Instance.players)
         {
             float distance = Vector3.Distance(player.transform.position, gameObject.transform.position);
-            if (distance < range)
+
+            bool Los = !Physics.Raycast(transform.position, player.transform.position - transform.position, distance, whatIsMapGeometry);
+
+
+            if (distance < range && Los)
             {
                 //In range of explosion
                 float playerDamage = damage * (1 - distance / range);
@@ -56,6 +67,8 @@ public class Bomba : MonoBehaviour
                 player.takeKnockbackClientRpc(force);
             }
         }
+        ParticleManager.Instance.spawnExplosionClientRpc(transform.position);
+        Destroy(spawnedBomba);
         Destroy(gameObject);
     }
 

@@ -11,6 +11,7 @@ public class Bomberbomb : NetworkBehaviour
     public float range = 5;
     public float lifeTime = 5.0f;
     float explosionTime;
+    public LayerMask whatIsMapGeometry;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -51,9 +52,13 @@ public class Bomberbomb : NetworkBehaviour
         foreach(Player player in GameManager.Instance.players)
         {
             float distance = Vector3.Distance(player.transform.position, gameObject.transform.position);
-            if (distance < range)
+
+            bool Los = !Physics.Raycast(transform.position, player.transform.position - transform.position, distance, whatIsMapGeometry);
+
+            if (distance < range && Los)
             {
-                //In range of explosion
+                //In range of explosion and has Los
+
                 float playerDamage = damage * (1 - distance / range);
 
                 if (player.GetComponent<NetworkObject>().OwnerClientId == shooterId)
@@ -68,6 +73,7 @@ public class Bomberbomb : NetworkBehaviour
                 player.takeKnockbackClientRpc(force);
             }
         }
+        ParticleManager.Instance.spawnExplosionClientRpc(transform.position);
         Destroy(gameObject);
     }
 

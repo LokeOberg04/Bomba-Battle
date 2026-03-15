@@ -145,9 +145,9 @@ MonoBehaviour:
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 1
-  SyncRotAngleX: 0
-  SyncRotAngleY: 0
-  SyncRotAngleZ: 0
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
   SyncScaleX: 1
   SyncScaleY: 1
   SyncScaleZ: 1
@@ -177,6 +177,9 @@ MonoBehaviour:
   damage: 50
   range: 10
   explosionTime: 1
+  whatIsMapGeometry:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!114 &7971202779472555563
 MonoBehaviour:
   m_ObjectHideFlags: 0
