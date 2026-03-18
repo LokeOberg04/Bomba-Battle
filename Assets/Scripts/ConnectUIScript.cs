@@ -28,7 +28,8 @@ public class ConnectUIScript : MonoBehaviour
 
     private void startHost()
     {
-        NetworkManager.Singleton.StartHost();
+        //NetworkManager.Singleton.StartHost();
+        SteamManager.Instance.StartHost();
         canvas.enabled = false;
     }
 

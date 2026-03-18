@@ -36,9 +36,6 @@ public class Bomba : MonoBehaviour
         transform.rotation = Quaternion.LookRotation(vForward);
 
 
-
-       Debug.Log(bc.LastPoint.m_fDistance);
-
         if (distance >= 1)
         {
             explodeServerRpc();
