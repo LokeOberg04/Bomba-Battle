@@ -3,15 +3,16 @@ using Netcode.Transports.Facepunch;
 using Steamworks;
 using Steamworks.Data;
 using Unity.Netcode;
-using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class SteamManager : MonoBehaviour
 {
 
-    public uint appId;
+    public uint appId = 480;
 
     public static SteamManager Instance { get; private set; }
+
+    public Canvas startUiCanvas;
 
     public Lobby? currentLobby { get; private set; } = null;
 
@@ -57,7 +58,15 @@ public class SteamManager : MonoBehaviour
         SteamFriends.OnGameLobbyJoinRequested += OnGameLobbyJoinRequested;
     }
 
+    private void Update()
+    {
 
+    }
+
+    private void FixedUpdate()
+    {
+        SteamClient.RunCallbacks();
+    }
 
     private void OnDestroy()
     {
@@ -87,6 +96,7 @@ public class SteamManager : MonoBehaviour
 
         if (NetworkManager.Singleton.StartHost())
         {
+            startUiCanvas.enabled = false;
             Debug.Log("started host");
         }
 
@@ -103,6 +113,7 @@ public class SteamManager : MonoBehaviour
 
         if (NetworkManager.Singleton.StartClient())
         {
+            startUiCanvas.enabled = false;
             Debug.Log("Client Started", this);
         }
     }

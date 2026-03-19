@@ -30,13 +30,13 @@ public class ConnectUIScript : MonoBehaviour
     {
         //NetworkManager.Singleton.StartHost();
         SteamManager.Instance.StartHost();
-        canvas.enabled = false;
+        //canvas.enabled = false;
     }
 
     private void startClient()
     {
         NetworkManager.Singleton.StartClient();
-        canvas.enabled = false;
+        //canvas.enabled = false;
     }
 
 

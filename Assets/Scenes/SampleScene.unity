@@ -2743,6 +2743,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   appId: 480
+  startUiCanvas: {fileID: 2109232558}
 --- !u!114 &833859468
 MonoBehaviour:
   m_ObjectHideFlags: 0

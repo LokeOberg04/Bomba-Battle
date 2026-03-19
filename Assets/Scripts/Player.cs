@@ -211,7 +211,7 @@ public class Player : ActionStack
             dashResetTime = Time.time + dashCooldown;
         }
 
-        if(Input.GetKeyDown(KeyCode.P))
+        if(Input.GetKeyDown(KeyCode.Escape))
         {
             Debug.Log("player p");
             GameManager.Instance.pauseServerRpc();
