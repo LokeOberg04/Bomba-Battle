@@ -80,7 +80,7 @@ public class Player : ActionStack
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
         scale = transform.localScale;
-        PushAction(new Bomber(this));
+        //PushAction(new Bomber(this));
         GameManager.Instance.addPlayer(this);
         //dashText = GetComponentInChildren<TextMeshProUGUI>(true);
         bomb = Resources.Load<GameObject>("Prefabs/Bomberbomb");
@@ -96,7 +96,14 @@ public class Player : ActionStack
             GetComponentInChildren<Camera>(true).enabled = true;
             GetComponentInChildren<AudioListener>().enabled = true;
             dashText.enabled = true;
+            GameObject prefab = Resources.Load<GameObject>("Prefabs/HeroSelect");
+            GameObject heroSelectGO = Instantiate(prefab);
+            HeroSelect heroSelect = heroSelectGO.GetComponent<HeroSelect>();
+            heroSelect.player = this;
+            PushAction(heroSelect);
         }
+
+        respawnClientRpc();
     }
 
     private void OnEnable()
@@ -179,6 +186,12 @@ public class Player : ActionStack
         transform.position = spawnPoint.position;
         transform.rotation = spawnPoint.rotation;
 
+        m_health.Value = m_maxHealth;
+    }
+
+    [ClientRpc]
+    public void healClientRpc()
+    {
         m_health.Value = m_maxHealth;
     }
 

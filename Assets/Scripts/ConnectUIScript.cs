@@ -36,7 +36,7 @@ public class ConnectUIScript : MonoBehaviour
     private void startClient()
     {
         NetworkManager.Singleton.StartClient();
-        //canvas.enabled = false;
+        canvas.enabled = false;
     }
 
 

@@ -89,6 +89,7 @@ public class GameManager : NetworkBehaviour
     {
         foreach (Player player in players)
         {
+            player.healClientRpc();
             if (player.health.Value < 1)
             {
                 player.respawnClientRpc();
