@@ -2664,9 +2664,9 @@ GameObject:
   m_Component:
   - component: {fileID: 833859466}
   - component: {fileID: 833859465}
+  - component: {fileID: 833859469}
   - component: {fileID: 833859468}
   - component: {fileID: 833859467}
-  - component: {fileID: 833859469}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -2689,7 +2689,7 @@ MonoBehaviour:
   NetworkManagerExpanded: 0
   NetworkConfig:
     ProtocolVersion: 0
-    NetworkTransport: {fileID: 833859468}
+    NetworkTransport: {fileID: 833859469}
     PlayerPrefab: {fileID: 7421338940915881799, guid: e7be4679f6beece4291c50b7934b42e2, type: 3}
     Prefabs:
       NetworkPrefabsLists:
@@ -2738,7 +2738,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 833859463}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: daedafb4fdb7e034f987644570527950, type: 3}
   m_Name: 
@@ -2752,7 +2752,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 833859463}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 44dd247a00edbfa44b77868d755af6ea, type: 3}
   m_Name: 
@@ -2767,7 +2767,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 833859463}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6960e84d07fb87f47956e7a81d71c4e6, type: 3}
   m_Name: 

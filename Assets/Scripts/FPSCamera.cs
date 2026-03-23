@@ -4,7 +4,7 @@ using UnityEngine;
 public class FPSCamera : NetworkBehaviour
 {
 
-    public Transform player;
+    public GameObject player;
     public float sensitivity = 5.0f;
     float verticalRotation = 0f;
 
@@ -29,6 +29,7 @@ public class FPSCamera : NetworkBehaviour
         verticalRotation = Mathf.Clamp(verticalRotation, -90f, 90f);
         transform.localEulerAngles = Vector3.right * verticalRotation;
         
-        player.Rotate(Vector3.up * inputX);
+        player.transform.Rotate(Vector3.up * inputX);
+        player.GetComponent<Player>().weapon.transform.localEulerAngles = new Vector3(-90,-180,87) - Vector3.right * verticalRotation / 2;
     }
 }

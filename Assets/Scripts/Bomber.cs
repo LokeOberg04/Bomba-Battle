@@ -14,6 +14,9 @@ public class Bomber : Hero
     {
         health = 80;
         m_player.setMaxHealth(health);
+        m_player.hero = Player.EHero.Bomber;
+        m_player.weapon = m_player.bomberWeapon;
+        m_player.weapon.gameObject.SetActive(true);
     }
 
     private abstract class BomberAction : ActionStack.Action

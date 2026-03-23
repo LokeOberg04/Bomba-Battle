@@ -25,6 +25,13 @@ public class Player : ActionStack
     private GameObject bomb;
     private GameObject bomba;
 
+    public GameObject bomberWeapon;
+    public GameObject LQWeapon;
+    public GameObject hero3Weapon;
+
+    public EHero hero = EHero.None;
+    public GameObject weapon;
+
     public float projectileSpeed = 2000f;
 
     float horizontalInput;
@@ -61,6 +68,14 @@ public class Player : ActionStack
     bool crouched;
 
     Vector3 scale;
+
+    public enum EHero
+    {
+        None,
+        Bomber,
+        LQ,
+        Hero3
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
