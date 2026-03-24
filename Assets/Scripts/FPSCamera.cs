@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -30,6 +31,5 @@ public class FPSCamera : NetworkBehaviour
         transform.localEulerAngles = Vector3.right * verticalRotation;
         
         player.transform.Rotate(Vector3.up * inputX);
-        player.GetComponent<Player>().weapon.transform.localEulerAngles = new Vector3(-90,-180,87) - Vector3.right * verticalRotation / 2;
     }
 }

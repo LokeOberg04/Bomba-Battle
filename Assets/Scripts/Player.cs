@@ -22,6 +22,8 @@ public class Player : ActionStack
 
     Rigidbody rb;
 
+    public GameObject capsule;
+
     private GameObject bomb;
     private GameObject bomba;
 
@@ -94,7 +96,7 @@ public class Player : ActionStack
 
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
-        scale = transform.localScale;
+        scale = capsule.transform.localScale;
         //PushAction(new Bomber(this));
         GameManager.Instance.addPlayer(this);
         //dashText = GetComponentInChildren<TextMeshProUGUI>(true);
@@ -247,14 +249,16 @@ public class Player : ActionStack
 
         if (Input.GetKeyDown(KeyCode.C))
         {
-            transform.position -= Vector3.up * 0.2f;
-            transform.localScale += new Vector3(0, -0.2f, 0);
+            capsule.transform.position -= Vector3.up * 0.2f;
+            capsule.transform.localScale += new Vector3(0, -0.2f, 0);
+            GetComponentInChildren<Camera>().transform.position -= Vector3.up * 0.2f;
             crouched = true;
         }
         if (Input.GetKeyUp(KeyCode.C))
         {
-            transform.position += Vector3.up * 0.2f;
-            transform.localScale = scale;
+            capsule.transform.position += Vector3.up * 0.2f;
+            capsule.transform.localScale = scale;
+            GetComponentInChildren<Camera>().transform.position += Vector3.up * 0.2f;
             crouched = false;
         }
 
