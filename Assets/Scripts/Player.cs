@@ -225,9 +225,6 @@ public class Player : ActionStack
     {
         if(!IsOwner)
         {
-            Canvas canvas = healthbarWorld.GetComponentInParent<Canvas>();
-            canvas.transform.LookAt(Camera.main.transform.position);
-            //canvas.transform.Rotate(new Vector3(0, 90, 0));
             return;
         }
         horizontalInput = Input.GetAxisRaw("Horizontal");
@@ -360,6 +357,9 @@ public class Player : ActionStack
     {
         if (!IsOwner)
         {
+            Canvas canvas = healthbarWorld.GetComponentInParent<Canvas>();
+            canvas.transform.LookAt(Camera.main.transform.position);
+            //canvas.transform.Rotate(new Vector3(0, 90, 0));
             return;
         }
         float yVelocity = rb.linearVelocity.y;
