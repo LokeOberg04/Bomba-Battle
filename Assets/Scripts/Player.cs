@@ -34,6 +34,8 @@ public class Player : ActionStack
     public EHero hero = EHero.None;
     public GameObject weapon;
 
+    public Animator animator;
+
     public float projectileSpeed = 2000f;
 
     float horizontalInput;
@@ -94,6 +96,7 @@ public class Player : ActionStack
     {
         base.OnNetworkSpawn();
 
+        animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
         scale = capsule.transform.localScale;

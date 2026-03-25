@@ -48,6 +48,7 @@ public class Bomber : Hero
         {
             base.OnBegin(bFirstTime);
 
+            bomber.player.animator.SetTrigger("Shoot");
             bomber.player.shootSlider.gameObject.SetActive(true);
             bomber.player.shootCooldown = Time.time + bomber.firerate;
             Transform Cameratransform = bomber.player.GetComponentInChildren<Camera>().transform;

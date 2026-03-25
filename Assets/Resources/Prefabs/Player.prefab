@@ -988,6 +988,7 @@ GameObject:
   - component: {fileID: -6696971216467274670}
   - component: {fileID: 8524805452457381991}
   - component: {fileID: 4324836254515355531}
+  - component: {fileID: 68162790498062134}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1060,6 +1061,7 @@ MonoBehaviour:
   hero3Weapon: {fileID: 0}
   hero: 0
   weapon: {fileID: 0}
+  weaponAnimator: {fileID: 0}
   projectileSpeed: 2000
   healthbarUI: {fileID: 4881454796808458852}
   healthbarWorld: {fileID: 8818478686291972527}
@@ -1167,6 +1169,28 @@ MonoBehaviour:
   UseRigidBodyForMotion: 0
   AutoUpdateKinematicState: 1
   AutoSetKinematicOnDespawn: 1
+--- !u!95 &68162790498062134
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7421338940915881799}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 4f9968c50d2712c4982c16d3553136a8, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &7507493296437530272
 GameObject:
   m_ObjectHideFlags: 0
