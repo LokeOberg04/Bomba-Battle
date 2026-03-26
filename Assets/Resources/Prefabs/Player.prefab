@@ -809,7 +809,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   player: {fileID: 7421338940915881799}
-  sensitivity: 5
+  sensitivity: 1
 --- !u!1 &5953558014315088746
 GameObject:
   m_ObjectHideFlags: 0
