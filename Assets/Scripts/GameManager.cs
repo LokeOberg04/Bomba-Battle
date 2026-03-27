@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
@@ -11,6 +12,8 @@ public class GameManager : NetworkBehaviour
     private HashSet<Player> m_players = new HashSet<Player>();
 
     public NetworkList<int> score;
+
+    public NetworkVariable<bool> gameStarted = new NetworkVariable<bool>();
 
     public HashSet<Player> players => m_players;
 
@@ -29,6 +32,27 @@ public class GameManager : NetworkBehaviour
     private void OnDisable()
     {
         isPaused.OnValueChanged -= onPausedChanged;
+    }
+
+    public void checkStartConditions(bool oldValue, bool newValue)
+    {
+        int reads = 0;
+        foreach (var player in m_players)
+        {
+            reads += player.ready.Value ? 1 : 0;
+        }
+        if (reads > 1)
+        {
+            gameStarted.Value = true;
+        }
+    }
+
+    public void startGame()
+    {
+        foreach (Player player in m_players)
+        {
+            player.spawnPlayer();
+        }
     }
 
     public void updateScore(ulong playerId)
@@ -119,6 +143,7 @@ public class GameManager : NetworkBehaviour
     public void addPlayer(Player player)
     {
         m_players.Add(player);
+        player.ready.OnValueChanged += checkStartConditions;
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created

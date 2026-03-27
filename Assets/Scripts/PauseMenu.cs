@@ -52,6 +52,7 @@ public class PauseMenu : ActionStack.ActionBehavior
         }
     }
 
+
     public static void Open()
     {
         if(prefab == null)

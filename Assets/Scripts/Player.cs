@@ -14,6 +14,8 @@ public class Player : ActionStack
 {
     private float m_maxHealth = 100;
 
+    public NetworkVariable<bool> ready = new NetworkVariable<bool>();
+
     public NetworkVariable<float> m_health = new NetworkVariable<float>(100f);
 
     public NetworkVariable<float> health => m_health;
@@ -92,6 +94,17 @@ public class Player : ActionStack
         //dashText = GetComponentInChildren<TextMeshProUGUI>();
     }
 
+    [ServerRpc]
+    public void readyUpServerRpc()
+    {
+        ready.Value = true;
+    }
+
+    public void spawnPlayer()
+    {
+            GetComponentInChildren<Camera>(true).enabled = IsOwner ? true : false;
+    }
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -113,7 +126,7 @@ public class Player : ActionStack
         {
             healthbarUI.enabled = true;
             healthbarWorld.GetComponentInParent<Canvas>().enabled = false;
-            GetComponentInChildren<Camera>(true).enabled = true;
+            //GetComponentInChildren<Camera>(true).enabled = true;
             GetComponentInChildren<AudioListener>().enabled = true;
             dashText.enabled = true;
             GameObject prefab = Resources.Load<GameObject>("Prefabs/HeroSelect");
