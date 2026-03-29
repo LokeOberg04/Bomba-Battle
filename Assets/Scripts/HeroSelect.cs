@@ -80,9 +80,13 @@ public class HeroSelect : ActionStack.ActionBehavior
 
     }
 
-    public void pickHero3()
+    public void pickGunslinger()
     {
-
+        pickedHero = new Gunslinger(player);
+        heroPicked = true;
+        select.SetActive(false);
+        waitingText.enabled = true;
+        player.readyUpServerRpc();
     }
 
 }

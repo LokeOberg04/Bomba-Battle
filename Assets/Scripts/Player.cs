@@ -31,7 +31,7 @@ public class Player : ActionStack
 
     public GameObject bomberWeapon;
     public GameObject LQWeapon;
-    public GameObject hero3Weapon;
+    public GameObject gunslingerWeapon;
 
     public EHero hero = EHero.None;
     public GameObject weapon;
@@ -80,7 +80,7 @@ public class Player : ActionStack
         None,
         Bomber,
         LQ,
-        Hero3
+        Gunslinger
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
