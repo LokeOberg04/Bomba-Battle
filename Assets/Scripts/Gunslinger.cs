@@ -1,11 +1,12 @@
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Gunslinger : Hero
 {
 
-    public float firerate = 0.5f;
-
+    public float firerate = 0.3f;
+    public int damage = 20;
     public float ECooldown = 3.0f;
     public float ETime = 0;
 
@@ -52,7 +53,7 @@ public class Gunslinger : Hero
             gunslinger.player.shootCooldown = Time.time + gunslinger.firerate;
             Transform Cameratransform = gunslinger.player.GetComponentInChildren<Camera>().transform;
 
-            gunslinger.player.spawnBulletServerRpc(Cameratransform.position + Cameratransform.forward, Cameratransform.rotation, gunslinger.player.GetComponent<NetworkObject>().OwnerClientId);
+            gunslinger.player.gunslingerShotServerRpc(gunslinger.damage, Cameratransform.position, Cameratransform.forward);
         }
 
         public override void OnUpdate()

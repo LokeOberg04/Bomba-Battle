@@ -169,6 +169,18 @@ public class Player : ActionStack
     }
 
     [ServerRpc]
+    public void gunslingerShotServerRpc(int damage, Vector3 position, Vector3 direction)
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(position + direction * 0.5f, direction, out hit))
+        {
+            Debug.Log($"hit {hit.collider.name}");
+            Player enemy = hit.collider.GetComponentInParent<Player>();
+            enemy?.takeDamage(damage);
+        }
+    }
+
+    [ServerRpc]
     public void spawnBombaServerRpc(Vector3 Player, Vector3 Target)
     {
         GameObject spawnedBomba = Instantiate(bomba, Player, Quaternion.identity);
@@ -196,7 +208,7 @@ public class Player : ActionStack
         float percentHealth = newValue / maxHealth;
             healthbarUI.fillAmount = percentHealth;
             healthbarWorld.fillAmount = percentHealth;
-        if (newValue < 0)
+        if (newValue <= 0)
         {
             die();
         }
