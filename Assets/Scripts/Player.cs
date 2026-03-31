@@ -28,6 +28,7 @@ public class Player : ActionStack
 
     private GameObject bomb;
     private GameObject bomba;
+    private GameObject sleepDart;
 
     public GameObject bomberWeapon;
     public GameObject LQWeapon;
@@ -43,7 +44,7 @@ public class Player : ActionStack
     float horizontalInput;
     float verticalInput;
 
-    Vector3 moveDirection;
+    public Vector3 moveDirection;
 
     public UnityEngine.UI.Image healthbarUI;
 
@@ -118,6 +119,7 @@ public class Player : ActionStack
         //dashText = GetComponentInChildren<TextMeshProUGUI>(true);
         bomb = Resources.Load<GameObject>("Prefabs/Bomberbomb");
         bomba = Resources.Load<GameObject>("Prefabs/Bomba");
+        sleepDart = Resources.Load<GameObject>("Prefabs/SleepDart");
         healthbarUI.fillAmount = 1;
         healthbarWorld.fillAmount = 1;
         shootCooldown = 0;
@@ -178,6 +180,16 @@ public class Player : ActionStack
             Player enemy = hit.collider.GetComponentInParent<Player>();
             enemy?.takeDamage(damage);
         }
+    }
+
+    [ServerRpc]
+    public void gunslingerSleepServerRpc(Vector3 position, Quaternion rotation, float speed, ulong shooterId)
+    {
+        GameObject spawnedDart = Instantiate(sleepDart, position, rotation);
+        spawnedDart.GetComponent<SleepDart>().shooterId = shooterId;
+        Rigidbody DartRb = spawnedDart.GetComponent<Rigidbody>();
+        DartRb.AddForce(spawnedDart.transform.forward * speed);
+        spawnedDart.GetComponent<NetworkObject>().Spawn();
     }
 
     [ServerRpc]

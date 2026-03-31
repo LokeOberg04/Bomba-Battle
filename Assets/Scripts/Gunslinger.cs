@@ -9,6 +9,7 @@ public class Gunslinger : Hero
     public int damage = 20;
     public float ECooldown = 3.0f;
     public float ETime = 0;
+    public float sleepDartProjectileSpeed = 2000f;
 
     public Gunslinger(Player player) : base(player)
     {
@@ -74,10 +75,10 @@ public class Gunslinger : Hero
         }
     }
 
-    private class Deflect : GunslingerAction
+    private class Sleep : GunslingerAction
     {
         float cooldown = float.MaxValue;
-        public Deflect(Gunslinger gunslinger) : base(gunslinger)
+        public Sleep(Gunslinger gunslinger) : base(gunslinger)
         {
         }
 
@@ -90,17 +91,7 @@ public class Gunslinger : Hero
 
             Transform Cameratransform = gunslinger.player.GetComponentInChildren<Camera>().transform;
 
-            RaycastHit hit;
-
-            Physics.Raycast(Cameratransform.position, Cameratransform.transform.forward, out hit, 500f, gunslinger.player.whatIsGround);
-
-            gunslinger.player.spawnBombaServerRpc(gunslinger.player.transform.position, hit.point);
-
-            //bomber.cooldownSlider.gameObject.SetActive(true);
-            gunslinger.ETime = Time.time + gunslinger.ECooldown;
-            //Transform Cameratransform = bomber.player.GetComponentInChildren<Camera>().transform;
-
-            //bomber.player.spawnBulletServerRpc(Cameratransform.position + Cameratransform.forward, Cameratransform.rotation, bomber.player.GetComponent<NetworkObject>().OwnerClientId);
+            gunslinger.player.gunslingerSleepServerRpc(Cameratransform.position + Cameratransform.forward, Cameratransform.rotation, gunslinger.sleepDartProjectileSpeed, gunslinger.player.GetComponent<NetworkObject>().OwnerClientId);
         }
 
         public override void OnUpdate()
@@ -161,7 +152,7 @@ public class Gunslinger : Hero
 
         if (Input.GetKeyDown(KeyCode.E) && player.IsOwner && Time.time > ETime)
         {
-            player.PushAction(new Deflect(this));
+            player.PushAction(new Sleep(this));
         }
     }
 

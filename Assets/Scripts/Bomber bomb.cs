@@ -40,6 +40,7 @@ public class Bomberbomb : NetworkBehaviour
         // hit enemy
         if (player.GetComponent<NetworkObject>().OwnerClientId != shooterId)
         {
+            Debug.Log("Direct hit");
             player.takeDamage(directDamage);
             explodeServerRpc();
             return;
