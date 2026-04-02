@@ -61,11 +61,13 @@ public class SleepDart : NetworkBehaviour
 
             player.moveDirection = new Vector3(0, 0, 0);
             playerInitialHealth = player.health.Value;
+            player.sleepingText.enabled = true;
         }
 
         public override void OnEnd()
         {
             base.OnEnd();
+            player.sleepingText.enabled = false;
         }
 
         public override void OnUpdate()

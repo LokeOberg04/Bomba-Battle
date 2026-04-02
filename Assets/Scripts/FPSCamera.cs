@@ -12,12 +12,18 @@ public class FPSCamera : NetworkBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        //Cursor.visible = false;
+        //Cursor.lockState = CursorLockMode.Locked;
+    }
+
+    public void lockCamera()
+    {
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
     }
 
     // Update is called once per frame
-    void Update()
+    public void OnUpdate()
     {
         if(!IsOwner)
         {

@@ -39,6 +39,10 @@ public class Player : ActionStack
 
     public Animator animator;
 
+    public TextMeshProUGUI sleepingText;
+
+    private FPSCamera FPSCamera;
+
     public float projectileSpeed = 2000f;
 
     float horizontalInput;
@@ -103,7 +107,8 @@ public class Player : ActionStack
 
     public void spawnPlayer()
     {
-            GetComponentInChildren<Camera>(true).enabled = IsOwner ? true : false;
+        //GetComponentInChildren<Camera>(true).enabled = IsOwner ? true : false;
+        FPSCamera.lockCamera();
     }
 
     public override void OnNetworkSpawn()
@@ -128,7 +133,9 @@ public class Player : ActionStack
         {
             healthbarUI.enabled = true;
             healthbarWorld.GetComponentInParent<Canvas>().enabled = false;
-            //GetComponentInChildren<Camera>(true).enabled = true;
+            GetComponentInChildren<Camera>(true).enabled = true;
+            sleepingText.gameObject.SetActive(true);
+            FPSCamera = GetComponentInChildren<FPSCamera>();
             GetComponentInChildren<AudioListener>().enabled = true;
             dashText.enabled = true;
             GameObject prefab = Resources.Load<GameObject>("Prefabs/HeroSelect");
@@ -264,6 +271,9 @@ public class Player : ActionStack
         {
             return;
         }
+
+        FPSCamera.OnUpdate();
+
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
 
