@@ -9,7 +9,12 @@ public class Gunslinger : Hero
     public int damage = 20;
     public float ECooldown = 3.0f;
     public float ETime = 0;
+    public float ShiftCooldown = 3.0f;
+    public float ShiftTime = 0;
     public float sleepDartProjectileSpeed = 2000f;
+    public int shotgunDamage = 5;
+    public float shotgunSpread = 0.1f;
+    public int shotgunShots = 10;
 
     public Gunslinger(Player player) : base(player)
     {
@@ -116,6 +121,54 @@ public class Gunslinger : Hero
         }
     }
 
+    private class Shotgun : GunslingerAction
+    {
+        float cooldown = float.MaxValue;
+        public Shotgun(Gunslinger gunslinger) : base(gunslinger)
+        {
+        }
+
+        public override void OnBegin(bool bFirstTime)
+        {
+            base.OnBegin(bFirstTime);
+
+            gunslinger.player.ability2Slider.gameObject.SetActive(true);
+            gunslinger.ShiftTime = Time.time + gunslinger.ShiftCooldown;
+
+            Transform cameraTransform = gunslinger.player.GetComponentInChildren<Camera>().transform;
+
+            for(int i = 0; i < gunslinger.shotgunShots; i++)
+            {
+                Vector3 direction = cameraTransform.forward;
+                direction += cameraTransform.right * Random.Range(-gunslinger.shotgunSpread, gunslinger.shotgunSpread);
+                direction += cameraTransform.up * Random.Range(-gunslinger.shotgunSpread, gunslinger.shotgunSpread);
+
+                gunslinger.player.gunslingerShotgunServerRpc(gunslinger.shotgunDamage, cameraTransform.position, direction);
+            }
+        }
+
+        public override void OnUpdate()
+        {
+            base.OnUpdate();
+
+            //float sliderValue = 1 - (cooldown - Time.time) / bomber.firerate;
+
+            //bomber.cooldownSlider.value = sliderValue;
+        }
+
+        public override void OnEnd()
+        {
+            base.OnEnd();
+
+            //bomber.cooldownSlider.gameObject.SetActive(false);
+        }
+
+        public override bool IsDone()
+        {
+            return true;
+        }
+    }
+
     private void updateUI()
     {
         float shooterSliderValue = 1 - (player.shootCooldown - Time.time) / firerate;
@@ -129,13 +182,23 @@ public class Gunslinger : Hero
 
 
 
-        float deflectSliderValue = 1 - (ETime - Time.time) / ECooldown;
+        float sleepSliderValue = 1 - (ETime - Time.time) / ECooldown;
 
-        player.bombaSlider.value = deflectSliderValue;
+        player.bombaSlider.value = sleepSliderValue;
 
         if (Time.time > ETime)
         {
             player.bombaSlider.gameObject.SetActive(false);
+        }
+
+
+        float shotgunSliderValue = 1 - (ShiftTime - Time.time) / ShiftCooldown;
+
+        player.ability2Slider.value = shotgunSliderValue;
+
+        if (Time.time > ShiftTime)
+        {
+            player.ability2Slider.gameObject.SetActive(false);
         }
     }
 
@@ -153,6 +216,11 @@ public class Gunslinger : Hero
         if (Input.GetKeyDown(KeyCode.E) && player.IsOwner && Time.time > ETime)
         {
             player.PushAction(new Sleep(this));
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftShift) && player.IsOwner && Time.time > ShiftTime)
+        {
+            player.PushAction(new Shotgun(this));
         }
     }
 

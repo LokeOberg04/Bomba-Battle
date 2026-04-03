@@ -54,9 +54,10 @@ public class Player : ActionStack
 
     public UnityEngine.UI.Image healthbarWorld;
 
-    private float dashes = 2;
+    public float dashes = 2;
     public float dashCooldown = 2.5f;
-    private float dashResetTime;
+    public float dashResetTime;
+
     public TextMeshProUGUI dashText;
 
     public TextMeshProUGUI scoreText;
@@ -65,6 +66,7 @@ public class Player : ActionStack
 
     public UnityEngine.UI.Slider shootSlider;
     public UnityEngine.UI.Slider bombaSlider;
+    public UnityEngine.UI.Slider ability2Slider;
 
     public float moveSpeed = 5.0f;
     public float airMoveSpeed = 15.0f;
@@ -137,7 +139,7 @@ public class Player : ActionStack
             sleepingText.gameObject.SetActive(true);
             FPSCamera = GetComponentInChildren<FPSCamera>();
             GetComponentInChildren<AudioListener>().enabled = true;
-            dashText.enabled = true;
+            //dashText.enabled = true;
             GameObject prefab = Resources.Load<GameObject>("Prefabs/HeroSelect");
             GameObject heroSelectGO = Instantiate(prefab);
             HeroSelect heroSelect = heroSelectGO.GetComponent<HeroSelect>();
@@ -181,12 +183,26 @@ public class Player : ActionStack
     public void gunslingerShotServerRpc(int damage, Vector3 position, Vector3 direction)
     {
         RaycastHit hit;
-        if (Physics.Raycast(position + direction * 0.5f, direction, out hit))
+        if (Physics.Raycast(position, direction, out hit))
         {
+            Debug.DrawLine(position, hit.point, Color.green, 10);
             Debug.Log($"hit {hit.collider.name}");
             Player enemy = hit.collider.GetComponentInParent<Player>();
             enemy?.takeDamage(damage);
         }
+    }
+
+    [ServerRpc]
+    public void gunslingerShotgunServerRpc(int damage, Vector3 position, Vector3 direction)
+    {
+            RaycastHit hit;
+            if (Physics.Raycast(position, direction, out hit))
+            {
+                Debug.DrawLine(position, hit.point, Color.green, 10);
+                Debug.Log($"hit {hit.collider.name}");
+                Player enemy = hit.collider.GetComponentInParent<Player>();
+                enemy?.takeDamage(damage);
+            }
     }
 
     [ServerRpc]
@@ -265,6 +281,21 @@ public class Player : ActionStack
         m_health.Value = maxHealth;
     }
 
+    public void bomberDash()
+    {
+        rb.linearVelocity = Vector3.zero;
+
+        Vector3 forwardForce = transform.forward * verticalInput * 7;
+        Vector3 rightForce = transform.right * horizontalInput * 7;
+        Vector3 force = forwardForce + rightForce + Vector3.up * 5;
+
+        rb.AddForce(force, ForceMode.Impulse);
+
+        dashes--;
+        dashText.text = dashes.ToString();
+        dashResetTime = Time.time + dashCooldown;
+    }
+
     public void DefaultMovement()
     {
         if(!IsOwner)
@@ -316,22 +347,7 @@ public class Player : ActionStack
             rb.AddForce(Vector3.up * jumpHeight, ForceMode.Impulse);
         }
 
-        if (Input.GetKeyDown(KeyCode.LeftShift) && dashes > 0)
-        {
-            rb.linearVelocity = Vector3.zero;
-
-            Vector3 forwardForce = transform.forward * verticalInput * 7;
-            Vector3 rightForce = transform.right * horizontalInput * 7;
-            Vector3 force = forwardForce + rightForce + Vector3.up * 5;
-
-            rb.AddForce(force, ForceMode.Impulse);
-
-            dashes--;
-            dashText.text = dashes.ToString();
-            dashResetTime = Time.time + dashCooldown;
-        }
-
-            Vector3 center = transform.position;
+        Vector3 center = transform.position;
         for (int o = 0; o < 10; o++)
         {
             float angle = (float)o / 10 * 360f;

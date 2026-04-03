@@ -17,6 +17,7 @@ public class Bomber : Hero
         m_player.hero = Player.EHero.Bomber;
         m_player.weapon = m_player.bomberWeapon;
         m_player.weapon.gameObject.SetActive(true);
+        m_player.dashText.enabled = true;
     }
 
     private abstract class BomberAction : ActionStack.Action
@@ -125,6 +126,41 @@ public class Bomber : Hero
         }
     }
 
+    private class Dash : BomberAction
+    {
+        float cooldown = float.MaxValue;
+        public Dash(Bomber bomber) : base(bomber)
+        {
+        }
+
+        public override void OnBegin(bool bFirstTime)
+        {
+            base.OnBegin(bFirstTime);
+            bomber.player.bomberDash();
+        }
+
+        public override void OnUpdate()
+        {
+            base.OnUpdate();
+
+            //float sliderValue = 1 - (cooldown - Time.time) / bomber.firerate;
+
+            //bomber.cooldownSlider.value = sliderValue;
+        }
+
+        public override void OnEnd()
+        {
+            base.OnEnd();
+
+            //bomber.cooldownSlider.gameObject.SetActive(false);
+        }
+
+        public override bool IsDone()
+        {
+            return true;
+        }
+    }
+
     private void updateUI()
     {
         float shooterSliderValue = 1 - (player.shootCooldown - Time.time) / firerate;
@@ -162,6 +198,11 @@ public class Bomber : Hero
         if (Input.GetKeyDown(KeyCode.E) && player.IsOwner && Time.time > ETime)
         {
             player.PushAction(new Bomba(this));
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftShift) && player.dashes > 0)
+        {
+            player.PushAction(new Dash(this));
         }
     }
 
