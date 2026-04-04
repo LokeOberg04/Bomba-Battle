@@ -40,7 +40,7 @@ public class Gunslinger : Hero
         {
             base.OnUpdate();
 
-            gunslinger.OnUpdate();
+            gunslinger.updateUI();
             gunslinger.player.DefaultMovement();
         }
     }
@@ -123,7 +123,7 @@ public class Gunslinger : Hero
 
     private class Shotgun : GunslingerAction
     {
-        float cooldown = float.MaxValue;
+        float lockoutTime = 1;
         public Shotgun(Gunslinger gunslinger) : base(gunslinger)
         {
         }
@@ -131,6 +131,12 @@ public class Gunslinger : Hero
         public override void OnBegin(bool bFirstTime)
         {
             base.OnBegin(bFirstTime);
+
+            lockoutTime += Time.time;
+
+            gunslinger.player.gunslingerShotgun.gameObject.SetActive(true);
+
+            gunslinger.player.animator.Play("Shift");
 
             gunslinger.player.ability2Slider.gameObject.SetActive(true);
             gunslinger.ShiftTime = Time.time + gunslinger.ShiftCooldown;
@@ -160,12 +166,14 @@ public class Gunslinger : Hero
         {
             base.OnEnd();
 
+            gunslinger.player.gunslingerShotgun.gameObject.SetActive(false);
+
             //bomber.cooldownSlider.gameObject.SetActive(false);
         }
 
         public override bool IsDone()
         {
-            return true;
+            return Time.time > lockoutTime;
         }
     }
 

@@ -33,6 +33,7 @@ public class Player : ActionStack
     public GameObject bomberWeapon;
     public GameObject LQWeapon;
     public GameObject gunslingerWeapon;
+    public GameObject gunslingerShotgun;
 
     public EHero hero = EHero.None;
     public GameObject weapon;
