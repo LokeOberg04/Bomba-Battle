@@ -60,6 +60,9 @@ public class Gunslinger : Hero
             Transform Cameratransform = gunslinger.player.GetComponentInChildren<Camera>().transform;
 
             gunslinger.player.gunslingerShotServerRpc(gunslinger.damage, Cameratransform.position, Cameratransform.forward);
+
+            gunslinger.player.gunslingerWeapon.GetComponentInChildren<ParticleSystem>().Play();
+
         }
 
         public override void OnUpdate()
@@ -143,7 +146,7 @@ public class Gunslinger : Hero
 
             Transform cameraTransform = gunslinger.player.GetComponentInChildren<Camera>().transform;
 
-            for(int i = 0; i < gunslinger.shotgunShots; i++)
+            for (int i = 0; i < gunslinger.shotgunShots; i++)
             {
                 Vector3 direction = cameraTransform.forward;
                 direction += cameraTransform.right * Random.Range(-gunslinger.shotgunSpread, gunslinger.shotgunSpread);
@@ -151,6 +154,10 @@ public class Gunslinger : Hero
 
                 gunslinger.player.gunslingerShotgunServerRpc(gunslinger.shotgunDamage, cameraTransform.position, direction);
             }
+
+
+            gunslinger.player.gunslingerShotgun.GetComponentInChildren<ParticleSystem>().Play();
+
         }
 
         public override void OnUpdate()

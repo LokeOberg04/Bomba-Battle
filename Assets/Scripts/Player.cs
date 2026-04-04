@@ -184,7 +184,7 @@ public class Player : ActionStack
     public void gunslingerShotServerRpc(int damage, Vector3 position, Vector3 direction)
     {
         RaycastHit hit;
-        if (Physics.Raycast(position, direction, out hit))
+        if (Physics.Raycast(position + direction * 0.1f, direction, out hit))
         {
             Debug.DrawLine(position, hit.point, Color.green, 10);
             Debug.Log($"hit {hit.collider.name}");
@@ -197,7 +197,7 @@ public class Player : ActionStack
     public void gunslingerShotgunServerRpc(int damage, Vector3 position, Vector3 direction)
     {
             RaycastHit hit;
-            if (Physics.Raycast(position, direction, out hit))
+            if (Physics.Raycast(position + direction * 0.1f, direction, out hit))
             {
                 Debug.DrawLine(position, hit.point, Color.green, 10);
                 Debug.Log($"hit {hit.collider.name}");
