@@ -65,19 +65,20 @@ public class HeroSelect : ActionStack.ActionBehavior
 
     public void pickBomber()
     {
-        //player.PushAction(new Bomber(player));
         pickedHero = new Bomber(player);
         heroPicked = true;
         select.SetActive(false);
         waitingText.enabled = true;
         player.readyUpServerRpc();
-        //GameManager.Instance.readyUps.Value++;
-        //GameManager.Instance.checkStartConditions();
     }
 
     public void pickLQ()
     {
-
+        pickedHero = new LQ(player);
+        heroPicked = true;
+        select.SetActive(false);
+        waitingText.enabled = true;
+        player.readyUpServerRpc();
     }
 
     public void pickGunslinger()

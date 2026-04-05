@@ -194,6 +194,19 @@ public class Player : ActionStack
     }
 
     [ServerRpc]
+    public void LQShotServerRpc(int damage, Vector3 position, Vector3 direction)
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(position + direction * 0.1f, direction, out hit))
+        {
+            Debug.DrawLine(position, hit.point, Color.green, 10);
+            Debug.Log($"hit {hit.collider.name}");
+            Player enemy = hit.collider.GetComponentInParent<Player>();
+            enemy?.takeDamage(damage);
+        }
+    }
+
+    [ServerRpc]
     public void gunslingerShotgunServerRpc(int damage, Vector3 position, Vector3 direction)
     {
             RaycastHit hit;
