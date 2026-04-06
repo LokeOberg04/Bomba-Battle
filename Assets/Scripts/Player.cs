@@ -29,6 +29,7 @@ public class Player : ActionStack
     private GameObject bomb;
     private GameObject bomba;
     private GameObject sleepDart;
+    private GameObject LQZap;
 
     public GameObject bomberWeapon;
     public GameObject LQWeapon;
@@ -128,6 +129,7 @@ public class Player : ActionStack
         bomb = Resources.Load<GameObject>("Prefabs/Bomberbomb");
         bomba = Resources.Load<GameObject>("Prefabs/Bomba");
         sleepDart = Resources.Load<GameObject>("Prefabs/SleepDart");
+        LQZap = Resources.Load<GameObject>("Prefabs/LQZap");
         healthbarUI.fillAmount = 1;
         healthbarWorld.fillAmount = 1;
         shootCooldown = 0;
@@ -193,6 +195,21 @@ public class Player : ActionStack
         }
     }
 
+    public void spawnLQZap(Vector3 position,  Vector3 direction)
+    {
+        GameObject zap = Instantiate(LQZap, position, Quaternion.identity);
+        zap.transform.forward = direction;
+        zap.transform.SetParent(LQWeapon.transform, true);
+        zap.name = "zap";
+        //zap.GetComponent<NetworkObject>().Spawn();
+    }
+
+    public void despawnLQZap()
+    {
+        GameObject zap = LQWeapon.transform.Find("zap").gameObject;
+        Destroy(zap);
+    }
+
     [ServerRpc]
     public void LQShotServerRpc(int damage, Vector3 position, Vector3 direction)
     {
@@ -202,7 +219,7 @@ public class Player : ActionStack
             Debug.DrawLine(position, hit.point, Color.green, 10);
             Debug.Log($"hit {hit.collider.name}");
             Player enemy = hit.collider.GetComponentInParent<Player>();
-            enemy?.takeDamage(damage);
+            enemy?.takeDamage(damage * Time.deltaTime);
         }
     }
 
@@ -289,7 +306,8 @@ public class Player : ActionStack
         m_health.Value = m_maxHealth;
     }
 
-    public void setMaxHealth(float health)
+    [ServerRpc]
+    public void setMaxHealthServerRpc(float health)
     {
         m_maxHealth = health;
         m_health.Value = maxHealth;

@@ -19,7 +19,7 @@ public class Gunslinger : Hero
     public Gunslinger(Player player) : base(player)
     {
         health = 80;
-        m_player.setMaxHealth(health);
+        m_player.setMaxHealthServerRpc(health);
         m_player.hero = Player.EHero.Gunslinger;
         m_player.weapon = m_player.gunslingerWeapon;
         m_player.weapon.gameObject.SetActive(true);

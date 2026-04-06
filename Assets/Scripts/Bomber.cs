@@ -13,7 +13,7 @@ public class Bomber : Hero
     public Bomber(Player player) : base(player)
     {
         health = 80;
-        m_player.setMaxHealth(health);
+        m_player.setMaxHealthServerRpc(health);
         m_player.hero = Player.EHero.Bomber;
         m_player.weapon = m_player.bomberWeapon;
         m_player.weapon.gameObject.SetActive(true);

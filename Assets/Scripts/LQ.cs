@@ -1,6 +1,7 @@
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class LQ : Hero
 {
@@ -15,7 +16,7 @@ public class LQ : Hero
     public LQ(Player player) : base(player)
     {
         health = 80;
-        m_player.setMaxHealth(health);
+        m_player.setMaxHealthServerRpc(health);
         m_player.hero = Player.EHero.LQ;
         m_player.weapon = m_player.LQWeapon;
         m_player.weapon.gameObject.SetActive(true);
@@ -51,8 +52,9 @@ public class LQ : Hero
             base.OnBegin(bFirstTime);
 
             lq.player.animator.SetBool("Shooting", true);
-            
+            Transform Cameratransform = lq.player.GetComponentInChildren<Camera>().transform;
 
+            lq.player.spawnLQZap(lq.player.weapon.transform.position, Cameratransform.forward);
             
 
             //gunslinger.player.gunslingerWeapon.GetComponentInChildren<ParticleSystem>().Play();
@@ -72,6 +74,8 @@ public class LQ : Hero
             base.OnEnd();
 
             lq.player.animator.SetBool("Shooting", false);
+
+            lq.player.despawnLQZap();
 
             //bomber.cooldownSlider.gameObject.SetActive(false);
         }

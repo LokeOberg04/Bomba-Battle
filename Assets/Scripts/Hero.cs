@@ -12,7 +12,7 @@ public abstract class Hero : ActionStack.ActionBehavior
     protected Hero(Player player)
     {
         m_player = player;
-        m_player.setMaxHealth(health);
+        m_player.setMaxHealthServerRpc(health);
     }
 
     public Player player => m_player;
