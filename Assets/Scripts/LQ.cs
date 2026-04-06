@@ -50,7 +50,7 @@ public class LQ : Hero
         {
             base.OnBegin(bFirstTime);
 
-            lq.player.animator.SetTrigger("Shoot");
+            lq.player.animator.SetBool("Shooting", true);
             
 
             
@@ -70,6 +70,8 @@ public class LQ : Hero
         public override void OnEnd()
         {
             base.OnEnd();
+
+            lq.player.animator.SetBool("Shooting", false);
 
             //bomber.cooldownSlider.gameObject.SetActive(false);
         }
