@@ -7,11 +7,11 @@ public class LQ : Hero
 {
 
     public float firerate = 0.3f;
-    public int damage = 20;
+    public int damage = 40;
     public float ECooldown = 3.0f;
     public float ETime = 0;
-    public float ShiftCooldown = 3.0f;
-    public float ShiftTime = 0;
+    public float railDmgPerCharge = .75f;
+    public float railChargePerDmg = 1f;
 
     public LQ(Player player) : base(player)
     {
@@ -66,7 +66,9 @@ public class LQ : Hero
             base.OnUpdate();
 
             Transform Cameratransform = lq.player.GetComponentInChildren<Camera>().transform;
-            lq.player.LQShotServerRpc(lq.damage, Cameratransform.position, Cameratransform.forward);
+            lq.player.LQShot(lq.damage * Time.deltaTime, Cameratransform.position, Cameratransform.forward, lq.railChargePerDmg);
+            //, lq.player.GetComponent<NetworkObject>().OwnerClientId
+
         }
 
         public override void OnEnd()
@@ -86,10 +88,10 @@ public class LQ : Hero
         }
     }
 
-    private class Sleep : LQAction
+    private class Rail : LQAction
     {
-        float cooldown = float.MaxValue;
-        public Sleep(LQ lq) : base(lq)
+        float lockoutTime = 1;
+        public Rail(LQ lq) : base(lq)
         {
         }
 
@@ -97,12 +99,17 @@ public class LQ : Hero
         {
             base.OnBegin(bFirstTime);
 
-            //    gunslinger.player.bombaSlider.gameObject.SetActive(true);
-            //    gunslinger.ETime = Time.time + gunslinger.ECooldown;
+            lockoutTime += Time.time;
 
-            //    Transform Cameratransform = gunslinger.player.GetComponentInChildren<Camera>().transform;
+            float currentCharge = lq.player.LQCharge;
 
-            //    gunslinger.player.gunslingerSleepServerRpc(Cameratransform.position + Cameratransform.forward, Cameratransform.rotation, gunslinger.sleepDartProjectileSpeed, gunslinger.player.GetComponent<NetworkObject>().OwnerClientId);
+            lq.player.animator.Play("Shift");
+
+            lq.player.LQCharge = 0;
+
+            Transform Cameratransform = lq.player.GetComponentInChildren<Camera>().transform;
+            lq.player.LQRail(currentCharge * lq.railDmgPerCharge, Cameratransform.position, Cameratransform.forward);
+
         }
 
         public override void OnUpdate()
@@ -123,14 +130,14 @@ public class LQ : Hero
 
         public override bool IsDone()
         {
-            return true;
+            return Time.time > lockoutTime;
         }
     }
 
-    private class Shotgun : LQAction
+    private class Deflect : LQAction
     {
         float lockoutTime = 1;
-        public Shotgun(LQ lq) : base(lq)
+        public Deflect(LQ lq) : base(lq)
         {
         }
 
@@ -183,9 +190,9 @@ public class LQ : Hero
     private void updateUI()
     {
 
-        float sleepSliderValue = 1 - (ETime - Time.time) / ECooldown;
+        float DeflectSliderValue = 1 - (ETime - Time.time) / ECooldown;
 
-        player.bombaSlider.value = sleepSliderValue;
+        player.bombaSlider.value = DeflectSliderValue;
 
         if (Time.time > ETime)
         {
@@ -193,13 +200,11 @@ public class LQ : Hero
         }
 
 
-        float shotgunSliderValue = 1 - (ShiftTime - Time.time) / ShiftCooldown;
+        player.ability2Slider.value = player.LQCharge / 100;
 
-        player.ability2Slider.value = shotgunSliderValue;
-
-        if (Time.time > ShiftTime)
+        if (player.LQCharge > 0)
         {
-            player.ability2Slider.gameObject.SetActive(false);
+            player.ability2Slider.gameObject.SetActive(true);
         }
     }
 
@@ -216,12 +221,12 @@ public class LQ : Hero
 
         if (Input.GetKeyDown(KeyCode.E) && player.IsOwner && Time.time > ETime)
         {
-            player.PushAction(new Sleep(this));
+            player.PushAction(new Deflect(this));
         }
 
-        if (Input.GetKeyDown(KeyCode.LeftShift) && player.IsOwner && Time.time > ShiftTime)
+        if (Input.GetKeyDown(KeyCode.LeftShift) && player.IsOwner && player.LQCharge > 10)
         {
-            player.PushAction(new Shotgun(this));
+            player.PushAction(new Rail(this));
         }
     }
 

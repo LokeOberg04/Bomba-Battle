@@ -59,7 +59,7 @@ public class Gunslinger : Hero
             gunslinger.player.shootCooldown = Time.time + gunslinger.firerate;
             Transform Cameratransform = gunslinger.player.GetComponentInChildren<Camera>().transform;
 
-            gunslinger.player.gunslingerShotServerRpc(gunslinger.damage, Cameratransform.position, Cameratransform.forward);
+            gunslinger.player.gunslingerShot(gunslinger.damage, Cameratransform.position, Cameratransform.forward);
 
             gunslinger.player.gunslingerWeapon.GetComponentInChildren<ParticleSystem>().Play();
 
@@ -152,7 +152,7 @@ public class Gunslinger : Hero
                 direction += cameraTransform.right * Random.Range(-gunslinger.shotgunSpread, gunslinger.shotgunSpread);
                 direction += cameraTransform.up * Random.Range(-gunslinger.shotgunSpread, gunslinger.shotgunSpread);
 
-                gunslinger.player.gunslingerShotgunServerRpc(gunslinger.shotgunDamage, cameraTransform.position, direction);
+                gunslinger.player.gunslingerShotgunShot(gunslinger.shotgunDamage, cameraTransform.position, direction);
             }
 
 

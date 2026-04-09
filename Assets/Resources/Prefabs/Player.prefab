@@ -11389,6 +11389,7 @@ MonoBehaviour:
   airMoveSpeed: 15
   jumpHeight: 4
   shootCooldown: 0
+  LQCharge: 0
   whatIsGround:
     serializedVersion: 2
     m_Bits: 64

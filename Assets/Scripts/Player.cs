@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Bezier;
 using TMPro;
@@ -9,6 +10,7 @@ using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class Player : ActionStack
 {
@@ -37,6 +39,7 @@ public class Player : ActionStack
     public GameObject gunslingerShotgun;
 
     public EHero hero = EHero.None;
+
     public GameObject weapon;
 
     public Animator animator;
@@ -75,6 +78,8 @@ public class Player : ActionStack
     public float jumpHeight = 4.0f;
 
     public float shootCooldown = 0;
+
+    public float LQCharge = 0;
 
     public LayerMask whatIsGround;
 
@@ -182,8 +187,7 @@ public class Player : ActionStack
         
     }
 
-    [ServerRpc]
-    public void gunslingerShotServerRpc(int damage, Vector3 position, Vector3 direction)
+    public void gunslingerShot(int damage, Vector3 position, Vector3 direction)
     {
         RaycastHit hit;
         if (Physics.Raycast(position + direction * 0.1f, direction, out hit))
@@ -191,7 +195,7 @@ public class Player : ActionStack
             Debug.DrawLine(position, hit.point, Color.green, 10);
             Debug.Log($"hit {hit.collider.name}");
             Player enemy = hit.collider.GetComponentInParent<Player>();
-            enemy?.takeDamage(damage);
+            enemy?.takeDamageRpc(damage);
         }
     }
 
@@ -210,8 +214,7 @@ public class Player : ActionStack
         Destroy(zap);
     }
 
-    [ServerRpc]
-    public void LQShotServerRpc(int damage, Vector3 position, Vector3 direction)
+    public void LQShot(float damage, Vector3 position, Vector3 direction, float chargePerDmg)
     {
         RaycastHit hit;
         if (Physics.Raycast(position + direction * 0.1f, direction, out hit))
@@ -219,12 +222,32 @@ public class Player : ActionStack
             Debug.DrawLine(position, hit.point, Color.green, 10);
             Debug.Log($"hit {hit.collider.name}");
             Player enemy = hit.collider.GetComponentInParent<Player>();
-            enemy?.takeDamage(damage * Time.deltaTime);
+            if (enemy != null)
+            {
+                enemy.takeDamageRpc(damage);
+                LQCharge += chargePerDmg * damage;
+                LQCharge = Mathf.Clamp(LQCharge, 0, 100);
+            }
         }
     }
 
-    [ServerRpc]
-    public void gunslingerShotgunServerRpc(int damage, Vector3 position, Vector3 direction)
+    public void LQRail(float damage, Vector3 position, Vector3 direction)
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(position + direction * 0.1f, direction, out hit))
+        {
+            Debug.DrawLine(position, hit.point, Color.green, 10);
+            Debug.Log($"hit {hit.collider.name}");
+            Player enemy = hit.collider.GetComponentInParent<Player>();
+            if (enemy != null)
+            {
+                enemy.takeDamageRpc(damage);
+            }
+        }
+        ParticleManager.Instance.spawnRailClientRpc(LQWeapon.transform.position,direction);
+    }
+
+    public void gunslingerShotgunShot(int damage, Vector3 position, Vector3 direction)
     {
             RaycastHit hit;
             if (Physics.Raycast(position + direction * 0.1f, direction, out hit))
@@ -232,7 +255,7 @@ public class Player : ActionStack
                 Debug.DrawLine(position, hit.point, Color.green, 10);
                 Debug.Log($"hit {hit.collider.name}");
                 Player enemy = hit.collider.GetComponentInParent<Player>();
-                enemy?.takeDamage(damage);
+                enemy?.takeDamageRpc(damage);
             }
     }
 
@@ -259,6 +282,12 @@ public class Player : ActionStack
 
     
     public void takeDamage(float dmg)
+    {
+        m_health.Value -= dmg;
+    }
+
+    [Rpc(SendTo.Authority)]
+    public void takeDamageRpc(float dmg)
     {
         m_health.Value -= dmg;
     }
