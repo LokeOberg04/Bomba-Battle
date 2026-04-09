@@ -65,8 +65,7 @@ public class LQ : Hero
         {
             base.OnUpdate();
 
-            Transform Cameratransform = lq.player.GetComponentInChildren<Camera>().transform;
-            lq.player.LQShot(lq.damage * Time.deltaTime, Cameratransform.position, Cameratransform.forward, lq.railChargePerDmg);
+            lq.player.LQShotRpc(lq.damage * Time.deltaTime, lq.railChargePerDmg, lq.player.gameObject,lq.player);
             //, lq.player.GetComponent<NetworkObject>().OwnerClientId
 
         }
@@ -101,14 +100,11 @@ public class LQ : Hero
 
             lockoutTime += Time.time;
 
-            float currentCharge = lq.player.LQCharge;
+            float currentCharge = lq.player.LQCharge.Value;
 
             lq.player.animator.Play("Shift");
 
-            lq.player.LQCharge = 0;
-
-            Transform Cameratransform = lq.player.GetComponentInChildren<Camera>().transform;
-            lq.player.LQRail(currentCharge * lq.railDmgPerCharge, Cameratransform.position, Cameratransform.forward);
+            lq.player.LQRailRpc(currentCharge * lq.railDmgPerCharge, lq.player.gameObject, lq.player);
 
         }
 
@@ -200,9 +196,9 @@ public class LQ : Hero
         }
 
 
-        player.ability2Slider.value = player.LQCharge / 100;
+        player.ability2Slider.value = player.LQCharge.Value / 100;
 
-        if (player.LQCharge > 0)
+        if (player.LQCharge.Value > 0)
         {
             player.ability2Slider.gameObject.SetActive(true);
         }
@@ -224,7 +220,7 @@ public class LQ : Hero
             player.PushAction(new Deflect(this));
         }
 
-        if (Input.GetKeyDown(KeyCode.LeftShift) && player.IsOwner && player.LQCharge > 10)
+        if (Input.GetKeyDown(KeyCode.LeftShift) && player.IsOwner && player.LQCharge.Value > 10)
         {
             player.PushAction(new Rail(this));
         }

@@ -5,7 +5,7 @@ using UnityEngine;
 public class Gunslinger : Hero
 {
 
-    public float firerate = 0.3f;
+    public float firerate = 0.75f;
     public int damage = 20;
     public float ECooldown = 3.0f;
     public float ETime = 0;
@@ -59,7 +59,7 @@ public class Gunslinger : Hero
             gunslinger.player.shootCooldown = Time.time + gunslinger.firerate;
             Transform Cameratransform = gunslinger.player.GetComponentInChildren<Camera>().transform;
 
-            gunslinger.player.gunslingerShot(gunslinger.damage, Cameratransform.position, Cameratransform.forward);
+            gunslinger.player.gunslingerShotRpc(gunslinger.damage, gunslinger.player.gameObject);
 
             gunslinger.player.gunslingerWeapon.GetComponentInChildren<ParticleSystem>().Play();
 
@@ -144,17 +144,7 @@ public class Gunslinger : Hero
             gunslinger.player.ability2Slider.gameObject.SetActive(true);
             gunslinger.ShiftTime = Time.time + gunslinger.ShiftCooldown;
 
-            Transform cameraTransform = gunslinger.player.GetComponentInChildren<Camera>().transform;
-
-            for (int i = 0; i < gunslinger.shotgunShots; i++)
-            {
-                Vector3 direction = cameraTransform.forward;
-                direction += cameraTransform.right * Random.Range(-gunslinger.shotgunSpread, gunslinger.shotgunSpread);
-                direction += cameraTransform.up * Random.Range(-gunslinger.shotgunSpread, gunslinger.shotgunSpread);
-
-                gunslinger.player.gunslingerShotgunShot(gunslinger.shotgunDamage, cameraTransform.position, direction);
-            }
-
+            gunslinger.player.gunslingerShotgunShotRpc(gunslinger.shotgunDamage, gunslinger.player.gameObject, gunslinger.shotgunShots, gunslinger.shotgunSpread);
 
             gunslinger.player.gunslingerShotgun.GetComponentInChildren<ParticleSystem>().Play();
 

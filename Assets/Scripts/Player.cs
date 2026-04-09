@@ -6,11 +6,14 @@ using TMPro;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEditor;
+using UnityEditor.Build;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
 using static UnityEngine.EventSystems.EventTrigger;
+using static UnityEngine.GraphicsBuffer;
 
 public class Player : ActionStack
 {
@@ -79,7 +82,7 @@ public class Player : ActionStack
 
     public float shootCooldown = 0;
 
-    public float LQCharge = 0;
+    public NetworkVariable<float> LQCharge = new NetworkVariable<float>(0);
 
     public LayerMask whatIsGround;
 
@@ -187,19 +190,32 @@ public class Player : ActionStack
         
     }
 
-    public void gunslingerShot(int damage, Vector3 position, Vector3 direction)
+    [Rpc(SendTo.Server)]
+    public void gunslingerShotRpc(int damage, NetworkObjectReference target)
     {
-        RaycastHit hit;
-        if (Physics.Raycast(position + direction * 0.1f, direction, out hit))
+        if (target.TryGet(out NetworkObject player))
         {
-            Debug.DrawLine(position, hit.point, Color.green, 10);
-            Debug.Log($"hit {hit.collider.name}");
-            Player enemy = hit.collider.GetComponentInParent<Player>();
-            enemy?.takeDamageRpc(damage);
+            // deal damage or something to target object.
+            Transform cameraTransform = player.GetComponentInChildren<Camera>().transform;
+            RaycastHit hit;
+            if (Physics.Raycast(cameraTransform.position + cameraTransform.forward * 0.1f, cameraTransform.forward, out hit))
+            {
+                Debug.DrawLine(cameraTransform.position, hit.point, Color.green, 10);
+                Debug.Log($"hit {hit.collider.name}");
+                Player enemy = hit.collider.GetComponentInParent<Player>();
+                enemy?.takeDamageRpc(damage);
+            }
         }
+        else
+        {
+            // Target not found on server, likely because it already has been destroyed/despawned.
+            Debug.LogError("target not found!");
+        }
+
+
     }
 
-    public void spawnLQZap(Vector3 position,  Vector3 direction)
+    public void spawnLQZap(Vector3 position, Vector3 direction)
     {
         GameObject zap = Instantiate(LQZap, position, Quaternion.identity);
         zap.transform.forward = direction;
@@ -214,49 +230,90 @@ public class Player : ActionStack
         Destroy(zap);
     }
 
-    public void LQShot(float damage, Vector3 position, Vector3 direction, float chargePerDmg)
+    [Rpc(SendTo.Server)]
+    public void LQShotRpc(float damage, float chargePerDmg, NetworkObjectReference target, NetworkBehaviourReference inPlayerScript)
     {
-        RaycastHit hit;
-        if (Physics.Raycast(position + direction * 0.1f, direction, out hit))
+        if (target.TryGet(out NetworkObject player))
         {
-            Debug.DrawLine(position, hit.point, Color.green, 10);
-            Debug.Log($"hit {hit.collider.name}");
-            Player enemy = hit.collider.GetComponentInParent<Player>();
-            if (enemy != null)
-            {
-                enemy.takeDamageRpc(damage);
-                LQCharge += chargePerDmg * damage;
-                LQCharge = Mathf.Clamp(LQCharge, 0, 100);
-            }
-        }
-    }
+            Transform cameraTransform = player.GetComponentInChildren<Camera>().transform;
 
-    public void LQRail(float damage, Vector3 position, Vector3 direction)
-    {
-        RaycastHit hit;
-        if (Physics.Raycast(position + direction * 0.1f, direction, out hit))
-        {
-            Debug.DrawLine(position, hit.point, Color.green, 10);
-            Debug.Log($"hit {hit.collider.name}");
-            Player enemy = hit.collider.GetComponentInParent<Player>();
-            if (enemy != null)
-            {
-                enemy.takeDamageRpc(damage);
-            }
-        }
-        ParticleManager.Instance.spawnRailClientRpc(LQWeapon.transform.position,direction);
-    }
-
-    public void gunslingerShotgunShot(int damage, Vector3 position, Vector3 direction)
-    {
             RaycastHit hit;
-            if (Physics.Raycast(position + direction * 0.1f, direction, out hit))
+            if (Physics.Raycast(cameraTransform.position + cameraTransform.forward * 0.1f, cameraTransform.forward, out hit))
             {
-                Debug.DrawLine(position, hit.point, Color.green, 10);
+                Debug.DrawLine(cameraTransform.position, hit.point, Color.green, 10);
                 Debug.Log($"hit {hit.collider.name}");
                 Player enemy = hit.collider.GetComponentInParent<Player>();
-                enemy?.takeDamageRpc(damage);
+                if (enemy != null)
+                {
+                    enemy.takeDamageRpc(damage);
+                    if (inPlayerScript.TryGet(out Player playerScript))
+                    {
+                        playerScript.LQCharge.Value += chargePerDmg * damage;
+                        playerScript.LQCharge.Value = Mathf.Clamp(playerScript.LQCharge.Value, 0, 100);
+                    }
+                }
             }
+        }
+        else
+        {
+            // Target not found on server, likely because it already has been destroyed/despawned.
+            Debug.LogError("target not found!");
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    public void LQRailRpc(float damage, NetworkObjectReference inPlayer, NetworkBehaviourReference inPlayerScript)
+    {
+        if(inPlayerScript.TryGet(out Player playerScript ))
+        {
+            playerScript.LQCharge.Value = 0;
+        }
+        if (inPlayer.TryGet(out NetworkObject player))
+        {
+            Transform cameraTransform = player.GetComponentInChildren<Camera>().transform;
+
+            RaycastHit hit;
+            if (Physics.Raycast(cameraTransform.position + cameraTransform.forward * 0.1f, cameraTransform.forward, out hit))
+            {
+                Debug.DrawLine(cameraTransform.position, hit.point, Color.green, 10);
+                Debug.Log($"hit {hit.collider.name}");
+                Player enemy = hit.collider.GetComponentInParent<Player>();
+                if (enemy != null)
+                {
+                    enemy.takeDamageRpc(damage);
+                }
+            }
+            ParticleManager.Instance.spawnRailClientRpc(LQWeapon.transform.position, cameraTransform.forward);
+        }
+        else
+        {
+            // Target not found on server, likely because it already has been destroyed/despawned.
+            Debug.LogError("target not found!");
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    public void gunslingerShotgunShotRpc(int damage, NetworkObjectReference inPlayer, int shots, float spread)
+    {
+        if(inPlayer.TryGet(out NetworkObject player))
+        {
+            Transform cameraTransform = player.GetComponentInChildren<Camera>().transform;
+            for (int i = 0; i < shots; i++)
+            {
+                Vector3 direction = cameraTransform.forward;
+                direction += cameraTransform.right * UnityEngine.Random.Range(-spread, spread);
+                direction += cameraTransform.up * UnityEngine.Random.Range(-spread, spread);
+                RaycastHit hit;
+                if (Physics.Raycast(cameraTransform.position + cameraTransform.forward * 0.1f, direction, out hit))
+                {
+                    Debug.DrawLine(cameraTransform.position, hit.point, Color.green, 10);
+                    Debug.Log($"hit {hit.collider.name}");
+                    Player enemy = hit.collider.GetComponentInParent<Player>();
+                    enemy?.takeDamageRpc(damage);
+                }
+            }
+
+        }
     }
 
     [ServerRpc]
