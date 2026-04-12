@@ -43,7 +43,10 @@ public class GameManager : NetworkBehaviour
         }
         if (reads > 1)
         {
-            gameStarted.Value = true;
+            if(IsServer)
+            {
+                gameStarted.Value = true;
+            }
         }
     }
 
@@ -72,7 +75,10 @@ public class GameManager : NetworkBehaviour
         if(newValue)
         {
             PauseMenu.Open();
-            isPaused.Value = true;
+            if(IsServer)
+            {
+                isPaused.Value = true;
+            }
             Debug.Log("pausing");
             Time.timeScale = 0.0f;
             Cursor.visible = true;
@@ -80,7 +86,10 @@ public class GameManager : NetworkBehaviour
         }
         else
         {
-            isPaused.Value = false;
+            if (IsServer)
+            {
+                isPaused.Value = false;
+            }
             Debug.Log("unpausing");
             Time.timeScale = 1.0f;
             Cursor.visible = false;

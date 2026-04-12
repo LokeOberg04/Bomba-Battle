@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Bezier;
 using TMPro;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEditor;
@@ -124,7 +125,7 @@ public class Player : ActionStack
     public void spawnPlayer()
     {
         //GetComponentInChildren<Camera>(true).enabled = IsOwner ? true : false;
-        FPSCamera.lockCamera();
+        FPSCamera?.lockCamera();
     }
 
     public override void OnNetworkSpawn()
@@ -162,7 +163,12 @@ public class Player : ActionStack
             PushAction(heroSelect);
         }
 
+
         respawnClientRpc();
+        foreach (var item in NetworkManager.Singleton.ConnectedClients)
+        {
+            item.Value.PlayerObject.GetComponent<Player>()?.updateHealthbars();
+        }
     }
 
     private void OnEnable()
@@ -432,13 +438,18 @@ public class Player : ActionStack
 
     public void onHealthChanged(float oldValue, float newValue)
     {
-        float percentHealth = newValue / maxHealth;
-            healthbarUI.fillAmount = percentHealth;
-            healthbarWorld.fillAmount = percentHealth;
+        updateHealthbars();
         if (newValue <= 0)
         {
             die();
         }
+    }
+
+    public void updateHealthbars()
+    {
+        float percentHealth = health.Value / maxHealth;
+        healthbarUI.fillAmount = percentHealth;
+        healthbarWorld.fillAmount = percentHealth;
     }
 
     public void die()
@@ -450,15 +461,21 @@ public class Player : ActionStack
         respawnClientRpc();
     }
 
-    [ClientRpc]
+    [Rpc(SendTo.ClientsAndHost)]
     public void respawnClientRpc()
     {
-        spawnPoint = GameManager.Instance.getSpawnPoint();
+        if(IsOwner)
+        {
+            spawnPoint = GameManager.Instance.getSpawnPoint();
 
-        transform.position = spawnPoint.position;
-        transform.rotation = spawnPoint.rotation;
+            transform.position = spawnPoint.position;
+            transform.rotation = spawnPoint.rotation;
+        }
 
-        m_health.Value = m_maxHealth;
+        if(IsServer)
+        {
+            m_health.Value = m_maxHealth;
+        }
     }
 
     [ClientRpc]
