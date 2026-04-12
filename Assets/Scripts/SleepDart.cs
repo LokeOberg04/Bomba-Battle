@@ -4,24 +4,45 @@ using UnityEngine;
 public class SleepDart : NetworkBehaviour
 {
     public ulong shooterId;
+    public float speed;
     private void OnCollisionEnter(Collision collision)
     {
-        Player player = collision.gameObject.GetComponent<Player>();
+        Player enemy = collision.gameObject.GetComponent<Player>();
 
         //hit wall
-        if (player == null)
+        if (enemy == null)
         {
             Destroy(gameObject);
             return;
         }
 
-        ulong playerId = player.GetComponent<NetworkObject>().OwnerClientId;
+        ulong enemyId = enemy.GetComponent<NetworkObject>().OwnerClientId;
+
+        if (enemy.deflecting.Value)
+        {
+            //hit deflecting enemy
+            deflectRpc(enemy.gameObject, enemy, enemyId);
+            return;
+        }
 
         // hit enemy
-        if (playerId != shooterId)
+        if (enemyId != shooterId)
         {
-            sleepTargetClientRpc(playerId);
+            sleepTargetClientRpc(enemyId);
             Destroy(gameObject);
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    public void deflectRpc(NetworkObjectReference inPlayer, NetworkBehaviourReference inPlayerScript, ulong enemyId)
+    {
+        if(inPlayer.TryGet(out NetworkObject player))
+        {
+            if(inPlayerScript.TryGet(out Player playerScript))
+            {
+                playerScript.gunslingerSleepServerRpc(player.gameObject, speed, enemyId);
+                Destroy(gameObject);
+            }
         }
     }
 

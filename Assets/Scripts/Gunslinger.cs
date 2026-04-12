@@ -85,7 +85,6 @@ public class Gunslinger : Hero
 
     private class Sleep : GunslingerAction
     {
-        float cooldown = float.MaxValue;
         public Sleep(Gunslinger gunslinger) : base(gunslinger)
         {
         }
@@ -99,7 +98,7 @@ public class Gunslinger : Hero
 
             Transform Cameratransform = gunslinger.player.GetComponentInChildren<Camera>().transform;
 
-            gunslinger.player.gunslingerSleepServerRpc(Cameratransform.position + Cameratransform.forward, Cameratransform.rotation, gunslinger.sleepDartProjectileSpeed, gunslinger.player.GetComponent<NetworkObject>().OwnerClientId);
+            gunslinger.player.gunslingerSleepServerRpc(gunslinger.player.gameObject, gunslinger.sleepDartProjectileSpeed, gunslinger.player.GetComponent<NetworkObject>().OwnerClientId);
         }
 
         public override void OnUpdate()

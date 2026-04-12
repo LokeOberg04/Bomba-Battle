@@ -5,8 +5,6 @@ using UnityEngine.UI;
 
 public class HeroSelect : ActionStack.ActionBehavior
 {
-    bool heroPicked = false;
-
     public GameObject select;
 
     public TextMeshProUGUI waitingText;
@@ -66,7 +64,6 @@ public class HeroSelect : ActionStack.ActionBehavior
     public void pickBomber()
     {
         pickedHero = new Bomber(player);
-        heroPicked = true;
         select.SetActive(false);
         waitingText.enabled = true;
         player.readyUpServerRpc();
@@ -75,7 +72,6 @@ public class HeroSelect : ActionStack.ActionBehavior
     public void pickLQ()
     {
         pickedHero = new LQ(player);
-        heroPicked = true;
         select.SetActive(false);
         waitingText.enabled = true;
         player.readyUpServerRpc();
@@ -84,7 +80,6 @@ public class HeroSelect : ActionStack.ActionBehavior
     public void pickGunslinger()
     {
         pickedHero = new Gunslinger(player);
-        heroPicked = true;
         select.SetActive(false);
         waitingText.enabled = true;
         player.readyUpServerRpc();

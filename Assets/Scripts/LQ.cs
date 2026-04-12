@@ -8,7 +8,7 @@ public class LQ : Hero
 
     public float firerate = 0.3f;
     public int damage = 40;
-    public float ECooldown = 3.0f;
+    public float ECooldown = 10.0f;
     public float ETime = 0;
     public float railDmgPerCharge = .75f;
     public float railChargePerDmg = 1f;
@@ -56,6 +56,7 @@ public class LQ : Hero
 
             lq.player.spawnLQZap(lq.player.weapon.transform.position, Cameratransform.forward);
             
+
 
             //gunslinger.player.gunslingerWeapon.GetComponentInChildren<ParticleSystem>().Play();
 
@@ -132,6 +133,8 @@ public class LQ : Hero
 
     private class Deflect : LQAction
     {
+        float Duration = 3;
+
         float lockoutTime = 1;
         public Deflect(LQ lq) : base(lq)
         {
@@ -141,21 +144,17 @@ public class LQ : Hero
         {
             base.OnBegin(bFirstTime);
 
-            //lockoutTime += Time.time;
+            lockoutTime += Time.time;
 
-            //gunslinger.player.gunslingerShotgun.gameObject.SetActive(true);
+            Duration += Time.time;
 
-            //gunslinger.player.animator.Play("Shift");
+            lq.ETime = Time.time + lq.ECooldown;
 
-            //gunslinger.player.ability2Slider.gameObject.SetActive(true);
-            //gunslinger.ShiftTime = Time.time + gunslinger.ShiftCooldown;
+            lq.player.bombaSlider.gameObject.SetActive(true);
 
-            //Transform cameraTransform = gunslinger.player.GetComponentInChildren<Camera>().transform;
+            lq.player.animator.SetBool("E", true);
 
-
-
-
-            //gunslinger.player.gunslingerShotgun.GetComponentInChildren<ParticleSystem>().Play();
+            lq.player.toggleLQDeflectRpc(true);
 
         }
 
@@ -172,14 +171,14 @@ public class LQ : Hero
         {
             base.OnEnd();
 
-            //gunslinger.player.gunslingerShotgun.gameObject.SetActive(false);
+            lq.player.animator.SetBool("E", false);
 
-            //bomber.cooldownSlider.gameObject.SetActive(false);
+            lq.player.toggleLQDeflectRpc(false);
         }
 
         public override bool IsDone()
         {
-            return Time.time > lockoutTime;
+            return Time.time > Duration || Input.GetKeyDown(KeyCode.E) && Time.time > lockoutTime;
         }
     }
 

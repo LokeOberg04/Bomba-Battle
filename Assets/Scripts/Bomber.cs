@@ -54,7 +54,7 @@ public class Bomber : Hero
             bomber.player.shootCooldown = Time.time + bomber.firerate;
             Transform Cameratransform = bomber.player.GetComponentInChildren<Camera>().transform;
 
-            bomber.player.spawnBulletServerRpc(Cameratransform.position + Cameratransform.forward, Cameratransform.rotation, bomber.player.GetComponent<NetworkObject>().OwnerClientId);
+            bomber.player.spawnBulletServerRpc(bomber.player.gameObject, bomber.player.GetComponent<NetworkObject>().OwnerClientId);
         }
 
         public override void OnUpdate()
@@ -77,7 +77,6 @@ public class Bomber : Hero
 
     private class Bomba : BomberAction
     {
-        float cooldown = float.MaxValue;
         public Bomba(Bomber bomber) : base(bomber)
         {
         }
@@ -128,7 +127,6 @@ public class Bomber : Hero
 
     private class Dash : BomberAction
     {
-        float cooldown = float.MaxValue;
         public Dash(Bomber bomber) : base(bomber)
         {
         }

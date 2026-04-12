@@ -41,6 +41,8 @@ public class Player : ActionStack
     public GameObject gunslingerWeapon;
     public GameObject gunslingerShotgun;
 
+    public GameObject LQDeflectSphere;
+
     public EHero hero = EHero.None;
 
     public GameObject weapon;
@@ -83,6 +85,8 @@ public class Player : ActionStack
     public float shootCooldown = 0;
 
     public NetworkVariable<float> LQCharge = new NetworkVariable<float>(0);
+
+    public NetworkVariable<bool> deflecting = new NetworkVariable<bool>(false);
 
     public LayerMask whatIsGround;
 
@@ -178,16 +182,23 @@ public class Player : ActionStack
         scoreText.text = GameManager.Instance.score[0].ToString() + "-" + GameManager.Instance.score[1].ToString();
     }
 
-    [ServerRpc]
-    public void spawnBulletServerRpc(Vector3 position, Quaternion rotation, ulong shooterId)
+    [Rpc(SendTo.Server,InvokePermission = RpcInvokePermission.Everyone)]
+    public void spawnBulletServerRpc(NetworkObjectReference inPlayer, ulong shooterId)
     {
-        
-        GameObject spawnedBomb = Instantiate(bomb, position, rotation);
-        spawnedBomb.GetComponent<Bomberbomb>().shooterId = shooterId;
-        Rigidbody bombRb = spawnedBomb.GetComponent<Rigidbody>();
-        bombRb.AddForce(spawnedBomb.transform.forward * projectileSpeed);
-        spawnedBomb.GetComponent<NetworkObject>().Spawn();
-        
+        if(inPlayer.TryGet(out NetworkObject player))
+        {
+            Transform cameraTransform = player.GetComponentInChildren<Camera>().transform;
+
+            GameObject spawnedBomb = Instantiate(bomb, cameraTransform.position + cameraTransform.forward, cameraTransform.rotation);
+            spawnedBomb.GetComponent<Bomberbomb>().shooterId = shooterId;
+            Rigidbody bombRb = spawnedBomb.GetComponent<Rigidbody>();
+            bombRb.AddForce(spawnedBomb.transform.forward * projectileSpeed);
+            spawnedBomb.GetComponent<NetworkObject>().Spawn();
+        }
+        else
+        {
+            Debug.LogError("playern ot found");
+        }
     }
 
     [Rpc(SendTo.Server)]
@@ -203,7 +214,19 @@ public class Player : ActionStack
                 Debug.DrawLine(cameraTransform.position, hit.point, Color.green, 10);
                 Debug.Log($"hit {hit.collider.name}");
                 Player enemy = hit.collider.GetComponentInParent<Player>();
-                enemy?.takeDamageRpc(damage);
+                if (enemy == null)
+                {
+                    //hit wall
+                    return;
+                }
+                if (enemy.deflecting.Value)
+                {
+                    //hit deflecting enemy
+                    enemy.gunslingerShotRpc(damage, enemy.gameObject);
+                    return;
+                }
+                //hit enemy
+                enemy.takeDamageRpc(damage);
             }
         }
         else
@@ -230,7 +253,18 @@ public class Player : ActionStack
         Destroy(zap);
     }
 
-    [Rpc(SendTo.Server)]
+    [Rpc(SendTo.ClientsAndHost)]
+    public void toggleLQDeflectRpc(bool on)
+    {
+        if(IsServer)
+        {
+            deflecting.Value = on;
+        }
+        
+        LQDeflectSphere.gameObject.SetActive(on);
+    }
+
+[Rpc(SendTo.Server)]
     public void LQShotRpc(float damage, float chargePerDmg, NetworkObjectReference target, NetworkBehaviourReference inPlayerScript)
     {
         if (target.TryGet(out NetworkObject player))
@@ -243,14 +277,23 @@ public class Player : ActionStack
                 Debug.DrawLine(cameraTransform.position, hit.point, Color.green, 10);
                 Debug.Log($"hit {hit.collider.name}");
                 Player enemy = hit.collider.GetComponentInParent<Player>();
-                if (enemy != null)
+                if (enemy == null)
                 {
-                    enemy.takeDamageRpc(damage);
-                    if (inPlayerScript.TryGet(out Player playerScript))
-                    {
-                        playerScript.LQCharge.Value += chargePerDmg * damage;
-                        playerScript.LQCharge.Value = Mathf.Clamp(playerScript.LQCharge.Value, 0, 100);
-                    }
+                    //hit wall
+                    return;
+                }
+                if (enemy.deflecting.Value)
+                {
+                    //hit deflecting enemy
+                    enemy.LQShotRpc(damage,chargePerDmg,enemy.gameObject,enemy);
+                    return;
+                }
+                //hit enemy
+                enemy.takeDamageRpc(damage);
+                if (inPlayerScript.TryGet(out Player playerScript))
+                {
+                    playerScript.LQCharge.Value += chargePerDmg * damage;
+                    playerScript.LQCharge.Value = Mathf.Clamp(playerScript.LQCharge.Value, 0, 100);
                 }
             }
         }
@@ -272,18 +315,28 @@ public class Player : ActionStack
         {
             Transform cameraTransform = player.GetComponentInChildren<Camera>().transform;
 
+            ParticleManager.Instance.spawnRailClientRpc(LQWeapon.transform.position, cameraTransform.forward);
+
             RaycastHit hit;
             if (Physics.Raycast(cameraTransform.position + cameraTransform.forward * 0.1f, cameraTransform.forward, out hit))
             {
                 Debug.DrawLine(cameraTransform.position, hit.point, Color.green, 10);
                 Debug.Log($"hit {hit.collider.name}");
                 Player enemy = hit.collider.GetComponentInParent<Player>();
-                if (enemy != null)
+                if (enemy == null)
                 {
-                    enemy.takeDamageRpc(damage);
+                    //hit wall
+                    return;
                 }
+                if (enemy.deflecting.Value)
+                {
+                    //hit deflecting enemy
+                    enemy.LQRailRpc(damage, enemy.gameObject, enemy);
+                    return;
+                }
+                //hit enemy
+                enemy.takeDamageRpc(damage);
             }
-            ParticleManager.Instance.spawnRailClientRpc(LQWeapon.transform.position, cameraTransform.forward);
         }
         else
         {
@@ -309,6 +362,18 @@ public class Player : ActionStack
                     Debug.DrawLine(cameraTransform.position, hit.point, Color.green, 10);
                     Debug.Log($"hit {hit.collider.name}");
                     Player enemy = hit.collider.GetComponentInParent<Player>();
+                    if(enemy == null)
+                    {
+                        //hit wall
+                        return;
+                    }
+                    if(enemy.deflecting.Value)
+                    {
+                        //hit deflecting enemy
+                        gunslingerShotRpc(damage, enemy.gameObject);
+                        return;
+                    }
+                    //hit enemy
                     enemy?.takeDamageRpc(damage);
                 }
             }
@@ -316,14 +381,24 @@ public class Player : ActionStack
         }
     }
 
-    [ServerRpc]
-    public void gunslingerSleepServerRpc(Vector3 position, Quaternion rotation, float speed, ulong shooterId)
+    [Rpc(SendTo.Server,InvokePermission = RpcInvokePermission.Everyone)]
+    public void gunslingerSleepServerRpc(NetworkObjectReference inPlayer, float speed, ulong shooterId)
     {
-        GameObject spawnedDart = Instantiate(sleepDart, position, rotation);
-        spawnedDart.GetComponent<SleepDart>().shooterId = shooterId;
-        Rigidbody DartRb = spawnedDart.GetComponent<Rigidbody>();
-        DartRb.AddForce(spawnedDart.transform.forward * speed);
-        spawnedDart.GetComponent<NetworkObject>().Spawn();
+        if(inPlayer.TryGet(out NetworkObject player))
+        {
+            Transform cameraTransform = player.GetComponentInChildren<Camera>().transform;
+            GameObject spawnedDart = Instantiate(sleepDart, cameraTransform.position + cameraTransform.forward * 2, cameraTransform.rotation);
+            spawnedDart.GetComponent<SleepDart>().shooterId = shooterId;
+            spawnedDart.GetComponent<SleepDart>().speed = speed;
+            Rigidbody DartRb = spawnedDart.GetComponent<Rigidbody>();
+            DartRb.AddForce(spawnedDart.transform.forward * speed);
+            spawnedDart.GetComponent<NetworkObject>().Spawn();
+        }
+        else
+        {
+            Debug.LogError("couldnt find player");
+        }
+
     }
 
     [ServerRpc]

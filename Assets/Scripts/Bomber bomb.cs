@@ -30,18 +30,28 @@ public class Bomberbomb : NetworkBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        Player player = collision.gameObject.GetComponent<Player>();
+        Player enemy = collision.gameObject.GetComponent<Player>();
         // hit wall
-        if (player == null)
+        if (enemy == null)
         {
             explodeServerRpc();
             return;
         }
         // hit enemy
-        if (player.GetComponent<NetworkObject>().OwnerClientId != shooterId)
+        ulong enemyOwnerClientId = enemy.GetComponent<NetworkObject>().OwnerClientId;
+        if (enemyOwnerClientId != shooterId)
         {
+            if(enemy.deflecting.Value)
+            {
+                //Direct hit deflecting enemy
+                Debug.Log("hit deflecting");
+                enemy.spawnBulletServerRpc(enemy.gameObject, enemyOwnerClientId);
+                Destroy(gameObject);
+                return;
+            }
+            //direct hit enemy
             Debug.Log("Direct hit");
-            player.takeDamage(directDamage);
+            enemy.takeDamage(directDamage);
             explodeServerRpc();
             return;
         }
