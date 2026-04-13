@@ -50,6 +50,10 @@ public class Player : ActionStack
 
     public Animator animator;
 
+    public Animator modelAnimator;
+
+    public GameObject model;
+
     public TextMeshProUGUI sleepingText;
 
     private FPSCamera FPSCamera;
@@ -506,6 +510,19 @@ public class Player : ActionStack
         dashResetTime = Time.time + dashCooldown;
     }
 
+    public void movingAnimations()
+    {
+        modelAnimator.SetBool("Walking", verticalInput == 1 ? true : false);
+
+        modelAnimator.SetBool("WalkingBackwards", verticalInput == -1 ? true : false);
+
+        modelAnimator.SetBool("Strafing", horizontalInput != 0 ? true : false);
+
+        modelAnimator.SetBool("LeftStrafe", horizontalInput == -1 ? true : false);
+
+        model.transform.localEulerAngles = new Vector3(0, horizontalInput == -1 ? -55 : horizontalInput == 0 ? 25 : 55, 0);
+    }
+
     public void DefaultMovement()
     {
         if(!IsOwner)
@@ -519,6 +536,8 @@ public class Player : ActionStack
         verticalInput = Input.GetAxisRaw("Vertical");
 
         moveDirection = rb.transform.forward * verticalInput + rb.transform.right * horizontalInput;
+
+        movingAnimations();
 
         grounded = Physics.Raycast(transform.position, Vector3.down, 1 + 0.01f, whatIsGround);
 

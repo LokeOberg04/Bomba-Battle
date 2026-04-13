@@ -11,6 +11,12 @@ public class HeroSelect : ActionStack.ActionBehavior
 
     public Player player;
 
+    private GameObject pickedModel;
+
+    private GameObject bomberHeroModel;
+    private GameObject LQHeroModel;
+    private GameObject gunslingerHeroModel;
+
     private Hero pickedHero;
 
     private bool countdownDone = false;
@@ -22,6 +28,7 @@ public class HeroSelect : ActionStack.ActionBehavior
 
     public override void OnBegin(bool bFirstTime)
     {
+        bomberHeroModel = Resources.Load<GameObject>("Prefabs/BomberModel");
         base.OnBegin(bFirstTime);
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
@@ -34,6 +41,9 @@ public class HeroSelect : ActionStack.ActionBehavior
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
         player.PushAction(pickedHero);
+        GameObject spawnedModel = Instantiate(pickedModel, player.transform);
+        player.model = spawnedModel;
+        player.modelAnimator = spawnedModel.GetComponent<Animator>();
         GameManager.Instance.gameStarted.OnValueChanged -= startGame;
         Destroy(gameObject);
     }
@@ -63,6 +73,7 @@ public class HeroSelect : ActionStack.ActionBehavior
 
     public void pickBomber()
     {
+        pickedModel = bomberHeroModel;
         pickedHero = new Bomber(player);
         select.SetActive(false);
         waitingText.enabled = true;
@@ -71,6 +82,7 @@ public class HeroSelect : ActionStack.ActionBehavior
 
     public void pickLQ()
     {
+        pickedModel = LQHeroModel;
         pickedHero = new LQ(player);
         select.SetActive(false);
         waitingText.enabled = true;
@@ -79,6 +91,7 @@ public class HeroSelect : ActionStack.ActionBehavior
 
     public void pickGunslinger()
     {
+        pickedModel = gunslingerHeroModel;
         pickedHero = new Gunslinger(player);
         select.SetActive(false);
         waitingText.enabled = true;
