@@ -6341,7 +6341,7 @@ MonoBehaviour:
   UseHalfFloatPrecision: 0
   InLocalSpace: 0
   SwitchTransformSpaceWhenParented: 0
-  Interpolate: 1
+  Interpolate: 0
   SlerpPosition: 0
 --- !u!1 &5953558014315088746
 GameObject:
@@ -11528,6 +11528,8 @@ MonoBehaviour:
   hero: 0
   weapon: {fileID: 0}
   animator: {fileID: 0}
+  modelAnimator: {fileID: 0}
+  model: {fileID: 0}
   sleepingText: {fileID: 7775091813279677831}
   projectileSpeed: 2000
   moveDirection: {x: 0, y: 0, z: 0}
