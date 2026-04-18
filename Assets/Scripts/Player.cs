@@ -42,6 +42,10 @@ public class Player : ActionStack
     public GameObject gunslingerWeapon;
     public GameObject gunslingerShotgun;
 
+    private GameObject bomberHeroModel;
+    private GameObject LQHeroModel;
+    private GameObject gunslingerHeroModel;
+
     public GameObject LQDeflectSphere;
 
     public EHero hero = EHero.None;
@@ -126,10 +130,19 @@ public class Player : ActionStack
         ready.Value = true;
     }
 
-    public void spawnPlayer()
+    [Rpc(SendTo.Everyone)]
+    public void gameStartedRpc()
     {
         //GetComponentInChildren<Camera>(true).enabled = IsOwner ? true : false;
         FPSCamera?.lockCamera();
+        foreach(SkinnedMeshRenderer renderer in model.GetComponentsInChildren<SkinnedMeshRenderer>())
+        {
+            renderer.enabled = false;
+        }
+        foreach (var item in NetworkManager.Singleton.ConnectedClients)
+        {
+            item.Value.PlayerObject?.GetComponent<Player>().updateHealthbars();
+        }
     }
 
     public override void OnNetworkSpawn()
@@ -143,6 +156,7 @@ public class Player : ActionStack
         //PushAction(new Bomber(this));
         GameManager.Instance.addPlayer(this);
         //dashText = GetComponentInChildren<TextMeshProUGUI>(true);
+        bomberHeroModel = Resources.Load<GameObject>("Prefabs/BomberModel");
         bomb = Resources.Load<GameObject>("Prefabs/Bomberbomb");
         bomba = Resources.Load<GameObject>("Prefabs/Bomba");
         sleepDart = Resources.Load<GameObject>("Prefabs/SleepDart");
@@ -169,10 +183,6 @@ public class Player : ActionStack
 
 
         respawnClientRpc();
-        foreach (var item in NetworkManager.Singleton.ConnectedClients)
-        {
-            item.Value.PlayerObject.GetComponent<Player>()?.updateHealthbars();
-        }
     }
 
     private void OnEnable()
@@ -190,6 +200,40 @@ public class Player : ActionStack
     public void updateScore(NetworkListEvent<int> changeEvent)
     {
         scoreText.text = GameManager.Instance.score[0].ToString() + "-" + GameManager.Instance.score[1].ToString();
+    }
+
+    [Rpc(SendTo.Server)]
+    public void spawnModelRpc(NetworkObjectReference inPlayer, NetworkBehaviourReference inPlayerScript)
+    {
+        if (inPlayer.TryGet(out NetworkObject networkPlayer))
+        {
+            GameObject spawnedModel = Instantiate(bomberHeroModel, networkPlayer.transform);
+            spawnedModel.GetComponent<NetworkObject>().Spawn();
+            spawnedModel.transform.SetParent(networkPlayer.transform, true);
+            if (inPlayerScript.TryGet(out Player playerScript))
+            {
+                playerScript.setModelRpc(spawnedModel);
+                spawnedModel.GetComponent<NetworkObject>().ChangeOwnership(networkPlayer.OwnerClientId);
+            }
+            else
+            {
+                Debug.LogError("couldnt get playerscript");
+            }
+        }
+        else
+        {
+            Debug.LogError("couldnt get player when spawning model");
+        }
+    }
+
+    [Rpc(SendTo.Owner)]
+    public void setModelRpc(NetworkObjectReference inModel)
+    {
+        if (inModel.TryGet(out NetworkObject nModel))
+        {
+            model = nModel.gameObject;
+            modelAnimator = nModel.GetComponent<Animator>();
+        }
     }
 
     [Rpc(SendTo.Server,InvokePermission = RpcInvokePermission.Everyone)]

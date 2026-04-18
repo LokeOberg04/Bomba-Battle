@@ -1,5 +1,6 @@
 using System.Collections;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -41,9 +42,6 @@ public class HeroSelect : ActionStack.ActionBehavior
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
         player.PushAction(pickedHero);
-        GameObject spawnedModel = Instantiate(pickedModel, player.transform);
-        player.model = spawnedModel;
-        player.modelAnimator = spawnedModel.GetComponent<Animator>();
         GameManager.Instance.gameStarted.OnValueChanged -= startGame;
         Destroy(gameObject);
     }
@@ -75,6 +73,7 @@ public class HeroSelect : ActionStack.ActionBehavior
     {
         pickedModel = bomberHeroModel;
         pickedHero = new Bomber(player);
+        player.spawnModelRpc(player.gameObject, player);
         select.SetActive(false);
         waitingText.enabled = true;
         player.readyUpServerRpc();

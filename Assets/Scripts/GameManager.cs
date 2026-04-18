@@ -54,7 +54,7 @@ public class GameManager : NetworkBehaviour
     {
         foreach (Player player in m_players)
         {
-            player.spawnPlayer();
+            player.gameStartedRpc();
         }
     }
 
