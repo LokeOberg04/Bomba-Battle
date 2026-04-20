@@ -28,6 +28,10 @@ public class Player : ActionStack
 
     public float maxHealth => m_maxHealth;
 
+    public NetworkVariable<bool> spawnProtection = new NetworkVariable<bool>(false,NetworkVariableReadPermission.Everyone,NetworkVariableWritePermission.Owner);
+
+    private float spawnProtectionTime = 0f;
+
     Rigidbody rb;
 
     public GameObject capsule;
@@ -136,6 +140,10 @@ public class Player : ActionStack
         //GetComponentInChildren<Camera>(true).enabled = IsOwner ? true : false;
         FPSCamera?.lockCamera();
         foreach(SkinnedMeshRenderer renderer in model.GetComponentsInChildren<SkinnedMeshRenderer>())
+        {
+            renderer.enabled = false;
+        }
+        foreach (MeshRenderer renderer in model.GetComponentsInChildren<MeshRenderer>())
         {
             renderer.enabled = false;
         }
@@ -466,15 +474,13 @@ public class Player : ActionStack
         spawnedBomba.GetComponent<NetworkObject>().Spawn();
     }
 
-    
-    public void takeDamage(float dmg)
-    {
-        m_health.Value -= dmg;
-    }
-
     [Rpc(SendTo.Authority)]
     public void takeDamageRpc(float dmg)
     {
+        if(spawnProtection.Value)
+        {
+            return;
+        }
         m_health.Value -= dmg;
     }
 
@@ -514,6 +520,9 @@ public class Player : ActionStack
     {
         if(IsOwner)
         {
+            spawnProtection.Value = true;
+            spawnProtectionTime = 1 + Time.time;
+
             spawnPoint = GameManager.Instance.getSpawnPoint();
 
             transform.position = spawnPoint.position;
@@ -564,7 +573,11 @@ public class Player : ActionStack
 
         modelAnimator.SetBool("LeftStrafe", horizontalInput == -1 ? true : false);
 
-        model.transform.localEulerAngles = new Vector3(0, horizontalInput == -1 ? -55 : horizontalInput == 0 ? 25 : 55, 0);
+        Vector3 rotation = new Vector3(0, horizontalInput == -1 ? -55 : horizontalInput == 0 ? 25 : 55, 0);
+
+        model.transform.localEulerAngles = rotation;
+
+        model.transform.GetChild(2).localEulerAngles -= horizontalInput == -1 ? rotation : Vector3.zero;
     }
 
     public void DefaultMovement()
@@ -581,7 +594,10 @@ public class Player : ActionStack
 
         moveDirection = rb.transform.forward * verticalInput + rb.transform.right * horizontalInput;
 
-        movingAnimations();
+        if(model != null)
+        {
+            movingAnimations();
+        }
 
         grounded = Physics.Raycast(transform.position, Vector3.down, 1 + 0.01f, whatIsGround);
 
@@ -658,6 +674,13 @@ public class Player : ActionStack
     {
         base.Update();
 
+        if (IsOwner)
+        {
+            if (Time.time > spawnProtectionTime && spawnProtection.Value)
+            {
+                spawnProtection.Value = false;
+            }
+        }
     }
 
     public void OnDrawGizmosSelected()

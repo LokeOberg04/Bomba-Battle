@@ -56,7 +56,7 @@ public class Bomba : MonoBehaviour
             {
                 //In range of explosion
                 float playerDamage = damage * (1 - distance / range);
-                player.takeDamage(playerDamage);
+                player.takeDamageRpc(playerDamage);
                 Rigidbody playerRb = player.GetComponent<Rigidbody>();
                 Vector3 direction = player.transform.position - transform.position;
                 Vector3 force = direction.normalized * knockback;

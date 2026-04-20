@@ -51,7 +51,10 @@ public class Bomberbomb : NetworkBehaviour
             }
             //direct hit enemy
             Debug.Log("Direct hit");
-            enemy.takeDamage(directDamage);
+            if (enemy.health.Value > directDamage)
+            {
+                enemy.takeDamageRpc(directDamage);
+            }
             explodeServerRpc();
             return;
         }
@@ -66,7 +69,7 @@ public class Bomberbomb : NetworkBehaviour
 
             bool Los = !Physics.Raycast(transform.position, player.transform.position - transform.position, distance, whatIsMapGeometry);
 
-            if (distance < range && Los)
+            if (distance < range && Los && !player.spawnProtection.Value)
             {
                 //In range of explosion and has Los
 
@@ -76,7 +79,7 @@ public class Bomberbomb : NetworkBehaviour
                 {
                     playerDamage *= 0.1f;
                 }
-                player.takeDamage(playerDamage);
+                player.takeDamageRpc(playerDamage);
                 Rigidbody playerRb = player.GetComponent<Rigidbody>();
                 Vector3 direction = player.transform.position - transform.position;
                 Vector3 force = direction.normalized * knockback;
