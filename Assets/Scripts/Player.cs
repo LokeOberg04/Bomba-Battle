@@ -569,15 +569,15 @@ public class Player : ActionStack
 
         modelAnimator.SetBool("WalkingBackwards", verticalInput == -1 ? true : false);
 
-        modelAnimator.SetBool("Strafing", horizontalInput != 0 ? true : false);
+        modelAnimator.SetBool("Strafing", horizontalInput == 1 ? true : false);
 
         modelAnimator.SetBool("LeftStrafe", horizontalInput == -1 ? true : false);
 
-        Vector3 rotation = new Vector3(0, horizontalInput == -1 ? -55 : horizontalInput == 0 ? 25 : 55, 0);
+        //Vector3 rotation = new Vector3(0, horizontalInput == -1 ? -55 : horizontalInput == 0 ? 25 : 55, 0);
 
-        model.transform.localEulerAngles = rotation;
+        //model.transform.localEulerAngles = rotation;
 
-        model.transform.GetChild(2).localEulerAngles -= horizontalInput == -1 ? rotation : Vector3.zero;
+        //model.transform.GetChild(2).localEulerAngles -= horizontalInput == -1 ? rotation : Vector3.zero;
     }
 
     public void DefaultMovement()
