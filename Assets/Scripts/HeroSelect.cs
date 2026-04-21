@@ -73,7 +73,7 @@ public class HeroSelect : ActionStack.ActionBehavior
     {
         pickedModel = bomberHeroModel;
         pickedHero = new Bomber(player);
-        player.spawnModelRpc(player.gameObject, player);
+        player.spawnModelRpc(player.gameObject, player,1);
         select.SetActive(false);
         waitingText.enabled = true;
         player.readyUpServerRpc();
@@ -83,6 +83,7 @@ public class HeroSelect : ActionStack.ActionBehavior
     {
         pickedModel = LQHeroModel;
         pickedHero = new LQ(player);
+        player.spawnModelRpc(player.gameObject, player, 2);
         select.SetActive(false);
         waitingText.enabled = true;
         player.readyUpServerRpc();
@@ -92,6 +93,7 @@ public class HeroSelect : ActionStack.ActionBehavior
     {
         pickedModel = gunslingerHeroModel;
         pickedHero = new Gunslinger(player);
+        player.spawnModelRpc(player.gameObject, player, 2);
         select.SetActive(false);
         waitingText.enabled = true;
         player.readyUpServerRpc();

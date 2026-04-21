@@ -165,6 +165,7 @@ public class Player : ActionStack
         GameManager.Instance.addPlayer(this);
         //dashText = GetComponentInChildren<TextMeshProUGUI>(true);
         bomberHeroModel = Resources.Load<GameObject>("Prefabs/BomberModel");
+        LQHeroModel = Resources.Load<GameObject>("Prefabs/LightningQueen");
         bomb = Resources.Load<GameObject>("Prefabs/Bomberbomb");
         bomba = Resources.Load<GameObject>("Prefabs/Bomba");
         sleepDart = Resources.Load<GameObject>("Prefabs/SleepDart");
@@ -211,11 +212,11 @@ public class Player : ActionStack
     }
 
     [Rpc(SendTo.Server)]
-    public void spawnModelRpc(NetworkObjectReference inPlayer, NetworkBehaviourReference inPlayerScript)
+    public void spawnModelRpc(NetworkObjectReference inPlayer, NetworkBehaviourReference inPlayerScript, int model)
     {
         if (inPlayer.TryGet(out NetworkObject networkPlayer))
         {
-            GameObject spawnedModel = Instantiate(bomberHeroModel, networkPlayer.transform);
+            GameObject spawnedModel = Instantiate(model == 1 ? bomberHeroModel : model == 2 ? LQHeroModel : gunslingerHeroModel, networkPlayer.transform);
             spawnedModel.GetComponent<NetworkObject>().Spawn();
             spawnedModel.transform.SetParent(networkPlayer.transform, true);
             if (inPlayerScript.TryGet(out Player playerScript))
