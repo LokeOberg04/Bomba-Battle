@@ -5858,12 +5858,12 @@ MonoBehaviour:
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 1
-  SyncRotAngleX: 1
-  SyncRotAngleY: 1
-  SyncRotAngleZ: 1
-  SyncScaleX: 1
-  SyncScaleY: 1
-  SyncScaleZ: 1
+  SyncRotAngleX: 0
+  SyncRotAngleY: 0
+  SyncRotAngleZ: 0
+  SyncScaleX: 0
+  SyncScaleY: 0
+  SyncScaleZ: 0
   PositionThreshold: 0.001
   RotAngleThreshold: 0.01
   ScaleThreshold: 0.01
@@ -5872,7 +5872,7 @@ MonoBehaviour:
   UseHalfFloatPrecision: 0
   InLocalSpace: 0
   SwitchTransformSpaceWhenParented: 0
-  Interpolate: 1
+  Interpolate: 0
   SlerpPosition: 0
 --- !u!1 &4060375162387261551
 GameObject:
@@ -11519,6 +11519,8 @@ MonoBehaviour:
     m_InternalValue: 0
   m_health:
     m_InternalValue: 100
+  spawnProtection:
+    m_InternalValue: 0
   capsule: {fileID: 3754558466401453161}
   bomberWeapon: {fileID: 8720642034987991291}
   LQWeapon: {fileID: 5112200988993629525}

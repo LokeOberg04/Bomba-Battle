@@ -615,20 +615,20 @@ public class Player : ActionStack
             GameManager.Instance.pauseServerRpc();
         }
 
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            capsule.transform.position -= Vector3.up * 0.2f;
-            capsule.transform.localScale += new Vector3(0, -0.2f, 0);
-            GetComponentInChildren<Camera>().transform.position -= Vector3.up * 0.2f;
-            crouched = true;
-        }
-        if (Input.GetKeyUp(KeyCode.C))
-        {
-            capsule.transform.position += Vector3.up * 0.2f;
-            capsule.transform.localScale = scale;
-            GetComponentInChildren<Camera>().transform.position += Vector3.up * 0.2f;
-            crouched = false;
-        }
+        //if (Input.GetKeyDown(KeyCode.C))
+        //{
+        //    capsule.transform.position -= Vector3.up * 0.2f;
+        //    capsule.transform.localScale += new Vector3(0, -0.2f, 0);
+        //    GetComponentInChildren<Camera>().transform.position -= Vector3.up * 0.2f;
+        //    crouched = true;
+        //}
+        //if (Input.GetKeyUp(KeyCode.C))
+        //{
+        //    capsule.transform.position += Vector3.up * 0.2f;
+        //    capsule.transform.localScale = scale;
+        //    GetComponentInChildren<Camera>().transform.position += Vector3.up * 0.2f;
+        //    crouched = false;
+        //}
 
         if (Input.GetKeyDown(KeyCode.Space) && grounded)
         {
