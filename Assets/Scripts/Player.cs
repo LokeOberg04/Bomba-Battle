@@ -301,19 +301,28 @@ public class Player : ActionStack
 
     }
 
-    public void spawnLQZap(Vector3 position, Vector3 direction)
+    [Rpc(SendTo.Everyone)]
+    public void spawnLQZapRpc(NetworkObjectReference networkPlayer)
     {
-        GameObject zap = Instantiate(LQZap, position, Quaternion.identity);
-        zap.transform.forward = direction;
-        zap.transform.SetParent(LQWeapon.transform, true);
-        zap.name = "zap";
-        //zap.GetComponent<NetworkObject>().Spawn();
+        if (networkPlayer.TryGet(out NetworkObject player))
+        {
+            Transform cameraTransform = player.GetComponentInChildren<Camera>().transform;
+            GameObject zap = Instantiate(LQZap, IsOwner ? LQWeapon.transform.position : player.transform.position + Vector3.up * 0.75f, Quaternion.identity);
+            zap.transform.forward = cameraTransform.forward;
+            zap.transform.SetParent(cameraTransform, true);
+            zap.name = "zap";
+        }
     }
 
-    public void despawnLQZap()
+    [Rpc(SendTo.Everyone)]
+    public void despawnLQZapRpc(NetworkObjectReference networkPlayer)
     {
-        GameObject zap = LQWeapon.transform.Find("zap").gameObject;
-        Destroy(zap);
+        if (networkPlayer.TryGet(out NetworkObject player))
+        {
+            Transform cameraTransform = player.GetComponentInChildren<Camera>().transform;
+            GameObject zap = cameraTransform.Find("zap").gameObject;
+            Destroy(zap);
+        }
     }
 
     [Rpc(SendTo.ClientsAndHost)]

@@ -54,7 +54,7 @@ public class LQ : Hero
             lq.player.animator.SetBool("Shooting", true);
             Transform Cameratransform = lq.player.GetComponentInChildren<Camera>().transform;
 
-            lq.player.spawnLQZap(lq.player.weapon.transform.position, Cameratransform.forward);
+            lq.player.spawnLQZapRpc(lq.player.gameObject);
             
 
 
@@ -77,7 +77,7 @@ public class LQ : Hero
 
             lq.player.animator.SetBool("Shooting", false);
 
-            lq.player.despawnLQZap();
+            lq.player.despawnLQZapRpc(lq.player.gameObject);
 
             //bomber.cooldownSlider.gameObject.SetActive(false);
         }
