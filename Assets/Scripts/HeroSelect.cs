@@ -93,7 +93,7 @@ public class HeroSelect : ActionStack.ActionBehavior
     {
         pickedModel = gunslingerHeroModel;
         pickedHero = new Gunslinger(player);
-        player.spawnModelRpc(player.gameObject, player, 2);
+        player.spawnModelRpc(player.gameObject, player, 3);
         select.SetActive(false);
         waitingText.enabled = true;
         player.readyUpServerRpc();

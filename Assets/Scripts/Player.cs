@@ -166,6 +166,7 @@ public class Player : ActionStack
         //dashText = GetComponentInChildren<TextMeshProUGUI>(true);
         bomberHeroModel = Resources.Load<GameObject>("Prefabs/BomberModel");
         LQHeroModel = Resources.Load<GameObject>("Prefabs/LightningQueen");
+        gunslingerHeroModel = Resources.Load<GameObject>("Prefabs/Gunslinger");
         bomb = Resources.Load<GameObject>("Prefabs/Bomberbomb");
         bomba = Resources.Load<GameObject>("Prefabs/Bomba");
         sleepDart = Resources.Load<GameObject>("Prefabs/SleepDart");
