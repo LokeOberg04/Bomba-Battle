@@ -8,6 +8,7 @@ public class ParticleManager : NetworkBehaviour
 {
     private GameObject explosionPrefab;
     private GameObject LQZap;
+    private GameObject bulletTrail;
 
     public static ParticleManager Instance { get; private set; }
 
@@ -16,6 +17,7 @@ public class ParticleManager : NetworkBehaviour
     {
         explosionPrefab = Resources.Load<GameObject>("Prefabs/Explosion");
         LQZap = Resources.Load<GameObject>("Prefabs/LQZap");
+        bulletTrail = Resources.Load<GameObject>("Prefabs/BulletTrail");
     }
 
     private void Awake()
@@ -30,6 +32,14 @@ public class ParticleManager : NetworkBehaviour
         {
             Instance = this;
         }
+    }
+
+    [Rpc(SendTo.Everyone)]
+    public void spawnBulletTrailRpc(Vector3 start, Vector3 end)
+    {
+        GameObject Go = Instantiate(bulletTrail);
+        BulletTrail bt = Go.GetComponent<BulletTrail>();
+        bt.startTrail(start, end);
     }
 
     [ClientRpc]

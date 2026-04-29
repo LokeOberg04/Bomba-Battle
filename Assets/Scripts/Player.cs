@@ -275,8 +275,8 @@ public class Player : ActionStack
             RaycastHit hit;
             if (Physics.Raycast(cameraTransform.position + cameraTransform.forward * 0.1f, cameraTransform.forward, out hit))
             {
+                ParticleManager.Instance.spawnBulletTrailRpc(cameraTransform.position, hit.point);
                 Debug.DrawLine(cameraTransform.position, hit.point, Color.green, 10);
-                Debug.Log($"hit {hit.collider.name}");
                 Player enemy = hit.collider.GetComponentInParent<Player>();
                 if (enemy == null)
                 {
@@ -348,7 +348,6 @@ public class Player : ActionStack
             if (Physics.Raycast(cameraTransform.position + cameraTransform.forward * 0.1f, cameraTransform.forward, out hit))
             {
                 Debug.DrawLine(cameraTransform.position, hit.point, Color.green, 10);
-                Debug.Log($"hit {hit.collider.name}");
                 Player enemy = hit.collider.GetComponentInParent<Player>();
                 if (enemy == null)
                 {
@@ -394,7 +393,6 @@ public class Player : ActionStack
             if (Physics.Raycast(cameraTransform.position + cameraTransform.forward * 0.1f, cameraTransform.forward, out hit))
             {
                 Debug.DrawLine(cameraTransform.position, hit.point, Color.green, 10);
-                Debug.Log($"hit {hit.collider.name}");
                 Player enemy = hit.collider.GetComponentInParent<Player>();
                 if (enemy == null)
                 {
@@ -421,30 +419,32 @@ public class Player : ActionStack
     [Rpc(SendTo.Server)]
     public void gunslingerShotgunShotRpc(int damage, NetworkObjectReference inPlayer, int shots, float spread)
     {
+        Debug.Log(shots + " shots");
         if(inPlayer.TryGet(out NetworkObject player))
         {
             Transform cameraTransform = player.GetComponentInChildren<Camera>().transform;
             for (int i = 0; i < shots; i++)
             {
+                Debug.Log("shotgun pellet");
                 Vector3 direction = cameraTransform.forward;
                 direction += cameraTransform.right * UnityEngine.Random.Range(-spread, spread);
                 direction += cameraTransform.up * UnityEngine.Random.Range(-spread, spread);
                 RaycastHit hit;
                 if (Physics.Raycast(cameraTransform.position + cameraTransform.forward * 0.1f, direction, out hit))
                 {
+                    ParticleManager.Instance.spawnBulletTrailRpc(cameraTransform.position, hit.point);
                     Debug.DrawLine(cameraTransform.position, hit.point, Color.green, 10);
-                    Debug.Log($"hit {hit.collider.name}");
                     Player enemy = hit.collider.GetComponentInParent<Player>();
                     if(enemy == null)
                     {
                         //hit wall
-                        return;
+                        continue;
                     }
                     if(enemy.deflecting.Value)
                     {
                         //hit deflecting enemy
                         gunslingerShotRpc(damage, enemy.gameObject);
-                        return;
+                        continue;
                     }
                     //hit enemy
                     enemy?.takeDamageRpc(damage);
@@ -621,7 +621,6 @@ public class Player : ActionStack
 
         if(Input.GetKeyDown(KeyCode.Escape))
         {
-            Debug.Log("player p");
             GameManager.Instance.pauseServerRpc();
         }
 

@@ -5,7 +5,7 @@ using UnityEngine;
 public class Gunslinger : Hero
 {
 
-    public float firerate = 0.75f;
+    public float firerate = 0.5f;
     public int damage = 20;
     public float ECooldown = 3.0f;
     public float ETime = 0;
