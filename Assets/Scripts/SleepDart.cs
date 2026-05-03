@@ -5,6 +5,7 @@ public class SleepDart : NetworkBehaviour
 {
     public ulong shooterId;
     public float speed;
+    public NetworkBehaviourReference shooter;
     private void OnCollisionEnter(Collision collision)
     {
         Player enemy = collision.gameObject.GetComponent<Player>();
@@ -28,6 +29,10 @@ public class SleepDart : NetworkBehaviour
         // hit enemy
         if (enemyId != shooterId)
         {
+            if(shooter.TryGet(out Player player))
+            {
+                player.hitEnemyRpc();
+            }
             sleepTargetClientRpc(enemyId);
             Destroy(gameObject);
         }
@@ -40,7 +45,7 @@ public class SleepDart : NetworkBehaviour
         {
             if(inPlayerScript.TryGet(out Player playerScript))
             {
-                playerScript.gunslingerSleepServerRpc(player.gameObject, speed, enemyId);
+                playerScript.gunslingerSleepServerRpc(player.gameObject, shooter, speed, enemyId);
                 Destroy(gameObject);
             }
         }

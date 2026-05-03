@@ -98,7 +98,7 @@ public class Gunslinger : Hero
 
             Transform Cameratransform = gunslinger.player.GetComponentInChildren<Camera>().transform;
 
-            gunslinger.player.gunslingerSleepServerRpc(gunslinger.player.gameObject, gunslinger.sleepDartProjectileSpeed, gunslinger.player.GetComponent<NetworkObject>().OwnerClientId);
+            gunslinger.player.gunslingerSleepServerRpc(gunslinger.player.gameObject, gunslinger.player, gunslinger.sleepDartProjectileSpeed, gunslinger.player.GetComponent<NetworkObject>().OwnerClientId);
         }
 
         public override void OnUpdate()

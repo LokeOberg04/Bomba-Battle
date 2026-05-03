@@ -36,6 +36,12 @@ public class Player : ActionStack
 
     public GameObject capsule;
 
+    private AudioSource audioSource;
+
+    public AudioClip hitmarkerSound;
+
+    private Coroutine hitmarkerCoroutine;
+
     private GameObject bomb;
     private GameObject bomba;
     private GameObject sleepDart;
@@ -72,6 +78,8 @@ public class Player : ActionStack
     float verticalInput;
 
     public Vector3 moveDirection;
+
+    public UnityEngine.UI.RawImage Hitmarker;
 
     public UnityEngine.UI.Image healthbarUI;
 
@@ -177,6 +185,7 @@ public class Player : ActionStack
 
         if (IsOwner)
         {
+            audioSource = GetComponent<AudioSource>();
             healthbarUI.enabled = true;
             healthbarWorld.GetComponentInParent<Canvas>().enabled = false;
             GetComponentInChildren<Camera>(true).enabled = true;
@@ -210,6 +219,37 @@ public class Player : ActionStack
     public void updateScore(NetworkListEvent<int> changeEvent)
     {
         scoreText.text = GameManager.Instance.score[0].ToString() + "-" + GameManager.Instance.score[1].ToString();
+    }
+
+    [Rpc(SendTo.Owner)]
+    public void hitEnemyRpc()
+    {
+        audioSource.PlayOneShot(hitmarkerSound);
+
+        if (hitmarkerCoroutine != null)
+        {
+            StopCoroutine(hitmarkerCoroutine);
+            hitmarkerCoroutine = null;
+        }
+
+        hitmarkerCoroutine = StartCoroutine(hitmarkerAnimation());
+    }
+
+    IEnumerator hitmarkerAnimation()
+    {
+        Hitmarker.gameObject.SetActive(true);
+        float t = 0;
+        float duration = 0.5f;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float alpha = 1 - (t / duration);
+            Hitmarker.color = new Color(1, 1, 1, alpha);
+            yield return null;
+        }
+        Hitmarker.gameObject.SetActive(false);
+        hitmarkerCoroutine = null;
+        
     }
 
     [Rpc(SendTo.Server)]
@@ -247,14 +287,16 @@ public class Player : ActionStack
     }
 
     [Rpc(SendTo.Server,InvokePermission = RpcInvokePermission.Everyone)]
-    public void spawnBulletServerRpc(NetworkObjectReference inPlayer, ulong shooterId)
+    public void spawnBulletServerRpc(NetworkObjectReference inPlayer, NetworkBehaviourReference inPlayerScript, ulong shooterId)
     {
         if(inPlayer.TryGet(out NetworkObject player))
         {
             Transform cameraTransform = player.GetComponentInChildren<Camera>().transform;
 
             GameObject spawnedBomb = Instantiate(bomb, cameraTransform.position + cameraTransform.forward, cameraTransform.rotation);
-            spawnedBomb.GetComponent<Bomberbomb>().shooterId = shooterId;
+            Bomberbomb bombScript = spawnedBomb.GetComponent<Bomberbomb>();
+            bombScript.shooterId = player.GetComponent<NetworkObject>().OwnerClientId;
+            bombScript.shooter = inPlayerScript;
             Rigidbody bombRb = spawnedBomb.GetComponent<Rigidbody>();
             bombRb.AddForce(spawnedBomb.transform.forward * projectileSpeed);
             spawnedBomb.GetComponent<NetworkObject>().Spawn();
@@ -291,6 +333,7 @@ public class Player : ActionStack
                 }
                 //hit enemy
                 enemy.takeDamageRpc(damage);
+                hitEnemyRpc();
             }
         }
         else
@@ -362,6 +405,7 @@ public class Player : ActionStack
                 }
                 //hit enemy
                 enemy.takeDamageRpc(damage);
+                hitEnemyRpc();
                 if (inPlayerScript.TryGet(out Player playerScript))
                 {
                     playerScript.LQCharge.Value += chargePerDmg * damage;
@@ -407,6 +451,7 @@ public class Player : ActionStack
                 }
                 //hit enemy
                 enemy.takeDamageRpc(damage);
+                hitEnemyRpc();
             }
         }
         else
@@ -448,6 +493,7 @@ public class Player : ActionStack
                     }
                     //hit enemy
                     enemy?.takeDamageRpc(damage);
+                    hitEnemyRpc();
                 }
             }
 
@@ -455,14 +501,16 @@ public class Player : ActionStack
     }
 
     [Rpc(SendTo.Server,InvokePermission = RpcInvokePermission.Everyone)]
-    public void gunslingerSleepServerRpc(NetworkObjectReference inPlayer, float speed, ulong shooterId)
+    public void gunslingerSleepServerRpc(NetworkObjectReference inPlayer, NetworkBehaviourReference inPlayerScript, float speed, ulong shooterId)
     {
         if(inPlayer.TryGet(out NetworkObject player))
         {
             Transform cameraTransform = player.GetComponentInChildren<Camera>().transform;
             GameObject spawnedDart = Instantiate(sleepDart, cameraTransform.position + cameraTransform.forward * 2, cameraTransform.rotation);
-            spawnedDart.GetComponent<SleepDart>().shooterId = shooterId;
-            spawnedDart.GetComponent<SleepDart>().speed = speed;
+            SleepDart dart = spawnedDart.GetComponent<SleepDart>();
+            dart.shooterId = shooterId;
+            dart.speed = speed;
+            dart.shooter = inPlayerScript;
             Rigidbody DartRb = spawnedDart.GetComponent<Rigidbody>();
             DartRb.AddForce(spawnedDart.transform.forward * speed);
             spawnedDart.GetComponent<NetworkObject>().Spawn();
@@ -475,9 +523,10 @@ public class Player : ActionStack
     }
 
     [ServerRpc]
-    public void spawnBombaServerRpc(Vector3 Player, Vector3 Target)
+    public void spawnBombaServerRpc(NetworkBehaviourReference inPlayerScript, Vector3 Player, Vector3 Target)
     {
         GameObject spawnedBomba = Instantiate(bomba, Player, Quaternion.identity);
+        spawnedBomba.GetComponent<Bomba>().shooter = inPlayerScript;
         BezierCurve.ControlPoint playerControlPoint = new BezierCurve.ControlPoint() { m_vPosition = Player, m_vTangent = Vector3.up * 10 };
         BezierCurve.ControlPoint targetControlPoint = new BezierCurve.ControlPoint() { m_vPosition = Target, m_vTangent = Vector3.down * 10 };
         spawnedBomba.GetComponent<BezierCurve>().m_points.Add(playerControlPoint);

@@ -54,7 +54,7 @@ public class Bomber : Hero
             bomber.player.shootCooldown = Time.time + bomber.firerate;
             Transform Cameratransform = bomber.player.GetComponentInChildren<Camera>().transform;
 
-            bomber.player.spawnBulletServerRpc(bomber.player.gameObject, bomber.player.GetComponent<NetworkObject>().OwnerClientId);
+            bomber.player.spawnBulletServerRpc(bomber.player.gameObject, bomber.player, bomber.player.GetComponent<NetworkObject>().OwnerClientId);
         }
 
         public override void OnUpdate()
@@ -94,7 +94,7 @@ public class Bomber : Hero
 
             Physics.Raycast(Cameratransform.position, Cameratransform.transform.forward, out hit, 500f, bomber.player.whatIsGround);
 
-            bomber.player.spawnBombaServerRpc(bomber.player.transform.position, hit.point);
+            bomber.player.spawnBombaServerRpc(bomber.player, bomber.player.transform.position, hit.point);
 
             //bomber.cooldownSlider.gameObject.SetActive(true);
             bomber.ETime = Time.time + bomber.ECooldown;

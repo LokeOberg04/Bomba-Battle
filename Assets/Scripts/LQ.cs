@@ -6,8 +6,9 @@ using UnityEngine.UIElements;
 public class LQ : Hero
 {
 
-    public float firerate = 0.3f;
-    public int damage = 40;
+    public float firerate = 0.05f;
+    public float fireTime = 0f;
+    public int damage = 2;
     public float ECooldown = 10.0f;
     public float ETime = 0;
     public float railDmgPerCharge = .75f;
@@ -66,7 +67,14 @@ public class LQ : Hero
         {
             base.OnUpdate();
 
-            lq.player.LQShotRpc(lq.damage * Time.deltaTime, lq.railChargePerDmg, lq.player.gameObject,lq.player);
+            lq.fireTime += Time.deltaTime;
+
+            while (lq.fireTime > lq.firerate)
+            {
+                lq.player.LQShotRpc(lq.damage, lq.railChargePerDmg, lq.player.gameObject, lq.player);
+                lq.fireTime -= lq.firerate;
+            }
+            
             //, lq.player.GetComponent<NetworkObject>().OwnerClientId
 
         }

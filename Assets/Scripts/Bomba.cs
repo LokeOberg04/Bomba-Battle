@@ -14,6 +14,7 @@ public class Bomba : MonoBehaviour
     private GameObject bombaEnd;
     private GameObject spawnedBomba;
     public LayerMask whatIsMapGeometry;
+    public NetworkBehaviourReference shooter;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -62,6 +63,10 @@ public class Bomba : MonoBehaviour
                 Vector3 force = direction.normalized * knockback;
                 //playerRb.AddForce(force, ForceMode.Impulse);
                 player.takeKnockbackClientRpc(force);
+                if (shooter.TryGet(out Player shooterScript))
+                {
+                    shooterScript.hitEnemyRpc();
+                }
             }
         }
         ParticleManager.Instance.spawnExplosionClientRpc(transform.position);
