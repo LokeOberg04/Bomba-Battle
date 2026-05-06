@@ -312,6 +312,7 @@ public class Player : ActionStack
     {
         if (target.TryGet(out NetworkObject player))
         {
+            SoundManager.Instance.gunslingerShotSoundRpc(0);
             // deal damage or something to target object.
             Transform cameraTransform = player.GetComponentInChildren<Camera>().transform;
             RaycastHit hit;
@@ -467,6 +468,7 @@ public class Player : ActionStack
         Debug.Log(shots + " shots");
         if(inPlayer.TryGet(out NetworkObject player))
         {
+            SoundManager.Instance.gunslingerShotSoundRpc(1);
             Transform cameraTransform = player.GetComponentInChildren<Camera>().transform;
             for (int i = 0; i < shots; i++)
             {

@@ -134,6 +134,8 @@ public class Gunslinger : Hero
         {
             base.OnBegin(bFirstTime);
 
+            if (!bFirstTime) return;
+
             lockoutTime += Time.time;
 
             gunslinger.player.gunslingerShotgun.gameObject.SetActive(true);
@@ -152,6 +154,9 @@ public class Gunslinger : Hero
         public override void OnUpdate()
         {
             base.OnUpdate();
+
+            Debug.Log(Time.time);
+            Debug.Log(lockoutTime);
 
             //float sliderValue = 1 - (cooldown - Time.time) / bomber.firerate;
 

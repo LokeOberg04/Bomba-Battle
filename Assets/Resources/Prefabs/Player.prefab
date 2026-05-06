@@ -11597,6 +11597,8 @@ MonoBehaviour:
     m_InternalValue: 0
   capsule: {fileID: 3754558466401453161}
   hitmarkerSound: {fileID: 8300000, guid: 9f447c2576648e7418d2d269077c868c, type: 3}
+  gunslingerRevolverShot: {fileID: 8300000, guid: 8911b449967bb054cb4c005f09cf7828, type: 3}
+  gunslingerShotgunShot: {fileID: 8300000, guid: dba6d3b90c3faaf4f8b28ae074186e5b, type: 3}
   bomberWeapon: {fileID: 8720642034987991291}
   LQWeapon: {fileID: 5112200988993629525}
   gunslingerWeapon: {fileID: 3823484721227602986}

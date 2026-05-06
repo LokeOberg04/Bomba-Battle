@@ -52,6 +52,8 @@ public class LQ : Hero
         {
             base.OnBegin(bFirstTime);
 
+            if (!bFirstTime) return;
+
             lq.player.animator.SetBool("Shooting", true);
             Transform Cameratransform = lq.player.GetComponentInChildren<Camera>().transform;
 
@@ -107,6 +109,8 @@ public class LQ : Hero
         {
             base.OnBegin(bFirstTime);
 
+            if (!bFirstTime) return;
+
             lockoutTime += Time.time;
 
             float currentCharge = lq.player.LQCharge.Value;
@@ -151,6 +155,8 @@ public class LQ : Hero
         public override void OnBegin(bool bFirstTime)
         {
             base.OnBegin(bFirstTime);
+
+            if (!bFirstTime) return;
 
             lockoutTime += Time.time;
 
